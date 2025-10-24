@@ -13,16 +13,22 @@ const Header = () => {
       <div className="gap-4 items-center hidden md:flex md:mr-8">
         <Link
           href="/how-to-play"
-          className="hover:underline space-font text-lg"
+          className="hover:underline space-font text-lg hoverAnimate"
         >
           How To Play
         </Link>
         <div>|</div>
-        <Link href="/characters" className="hover:underline space-font text-lg">
+        <Link
+          href="/characters"
+          className="hover:underline space-font text-lg hoverAnimate"
+        >
           Characters
         </Link>
         <div>|</div>
-        <Link href="/characters" className="hover:underline space-font text-lg">
+        <Link
+          href="/characters"
+          className="hover:underline space-font text-lg hoverAnimate"
+        >
           Settings
         </Link>
         <Button className="ml-2">Logout</Button>

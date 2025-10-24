@@ -98,6 +98,10 @@
   @apply bg-linear-to-br from-gray-800 via-gray-600 to-gray-900 border-2 border-gray-400  rounded-2xl p-5 relative overflow-hidden;
 }
 
+.metallic-list-item {
+  @apply bg-linear-to-br from-gray-800 via-gray-600 to-gray-900 border-2 border-gray-400  rounded-2xl py-2 px-4 relative overflow-hidden;
+}
+
 .metallic-stat {
   @apply bg-linear-to-br from-gray-800 via-gray-600 to-gray-900 border-2 border-gray-400 rounded-2xl p-5 flex flex-col items-center justify-center relative overflow-hidden;
 }
@@ -108,6 +112,10 @@
 
 .neon-header {
   @apply text-3xl font-extrabold text-cyan-300 mb-8 tracking-widest text-center drop-shadow-[0_0_8px_#00f2ff];
+}
+
+.hoverAnimate {
+  @apply transition-all duration-300 hover:-translate-y-0.5 hover:cursor-pointer;
 }
 
 .label-text {
