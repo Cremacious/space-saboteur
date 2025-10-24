@@ -6,7 +6,7 @@ const Header = () => {
   return (
     <header className="flex items-center justify-between mb-8">
       <div className="flex items-center gap-3">
-        <h1 className="md:ml-8 text-3xl font-bold tracking-wide space-font">
+        <h1 className="md:ml-8 text-2xl md:text-3xl font-bold tracking-wide space-font">
           Space Saboteur
         </h1>
       </div>
