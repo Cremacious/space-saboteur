@@ -9,9 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@fontsource-variable/tilt-neon": "^5.2.10",
+    "@fontsource/bungee-spice": "^5.2.10",
+    "@fontsource/goldman": "^5.2.8",
+    "@fontsource/gugi": "^5.2.7",
+    "@fontsource/zen-dots": "^5.2.8",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

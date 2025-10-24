@@ -5,7 +5,7 @@ import FriendsList from './components/FriendsList';
 
 const DashboardPage = () => {
   return (
-    <div className="min-h-screen flex items-center bg-linear-to-b from-black via-indigo-900 to-blue-950 text-white font-sans">
+    <div className="min-h-screen flex items-center  text-white font-sans">
       <div className="max-w-6xl mx-auto py-10 px-4">
         <Header />
         {/* Dashboard Grid */}

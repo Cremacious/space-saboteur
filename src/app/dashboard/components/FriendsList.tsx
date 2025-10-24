@@ -1,6 +1,7 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { Input } from '@/components/ui/input';
 
 const FriendsList = () => {
   const [showRequests, setShowRequests] = useState(false);
@@ -10,63 +11,58 @@ const FriendsList = () => {
   };
 
   return (
-    <div className="bg-indigo-800/60 rounded-xl p-6 shadow-lg flex flex-col gap-6">
-      <h2 className="text-2xl font-semibold mb-2">Friends</h2>
-      <div className="flex gap-2">
-        <input
-          type="email"
-          placeholder="Add friend by email"
-          className="px-3 py-2 rounded bg-indigo-950 border border-indigo-700 text-white flex-1"
-        />
-        <Button className="mt-0.5">Add</Button>
-      </div>
-      <div className="mb-2 space-y-4">
-        <Button onClick={handleViewRequests} className="w-full">
-          View Pending Requests (1)
-        </Button>
-
-        {showRequests && (
-          <div>
-            <ul className="space-y-1">
-              <li className="flex flex-col space-y-2 items-center justify-between bg-blue-500 p-2 rounded-xl">
-                <div>Invite from Taylor</div>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button className="">Accept</Button>
-                  <Button className="">Decline</Button>
-                </div>
-              </li>
-              {/* More invites... */}
-            </ul>
+    <div className="metallic-container">
+      <h2 className="neon-header space-font">Friends</h2>
+      <div className="space-y-8">
+        <div className="space-y-4">
+          <div className="flex gap-2">
+            <Input
+              type="email"
+              placeholder="Add friend by email"
+              className="space-font"
+            />
+            <Button className="">Add</Button>
           </div>
-        )}
-      </div>
-      <div>
-        <h3 className="font-semibold mb-3">Online Friends</h3>
-        <ul className="space-y-2">
-          <li className="flex items-center justify-between border rounded-xl p-4">
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-green-400 rounded-full inline-block" />{' '}
-              Alex
-            </span>
-            <button className="text-red-400 hover:underline">Delete</button>
-          </li>
+          <div className="mb-2 space-y-4">
+            <Button onClick={handleViewRequests} className="w-full">
+              View Pending Requests (1)
+            </Button>
 
-          <li className="flex items-center justify-between border rounded-xl p-4">
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-green-400 rounded-full inline-block" />{' '}
-              Alex
-            </span>
-            <button className="text-red-400 hover:underline">Delete</button>
-          </li>
+            {showRequests && (
+              <div>
+                <ul className="space-y-1">
+                  <li className="flex flex-col space-y-2 items-center justify-between metallic-box">
+                    <div>Invite from Taylor</div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button className="">Accept</Button>
+                      <Button variant={'destructive'} className="">
+                        Decline
+                      </Button>
+                    </div>
+                  </li>
+                  {/* More invites... */}
+                </ul>
+              </div>
+            )}
+          </div>{' '}
+        </div>
 
-          <li className="flex items-center justify-between border rounded-xl p-4">
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-green-400 rounded-full inline-block" />{' '}
-              Alex
-            </span>
-            <button className="text-red-400 hover:underline">Delete</button>
-          </li>
-        </ul>
+        <div>
+          <h3 className="font-semibold mb-3 neon-text space-font">
+            Online Friends
+          </h3>
+          <ul className="space-y-3">
+            <li className="metallic-box flex items-center justify-between ">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full inline-block" />
+                <span className="space-font text-lg">Alex</span>
+              </div>
+              <Button variant={'destructive'} size={'sm'} className="text-sm">
+                Delete
+              </Button>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   );
