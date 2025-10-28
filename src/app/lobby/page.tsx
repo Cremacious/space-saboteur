@@ -1,4 +1,3 @@
-import Header from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import PlayerList from './components/PlayerList';
 import InviteFriends from './components/InviteFriends';
