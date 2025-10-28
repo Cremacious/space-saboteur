@@ -91,7 +91,11 @@
 }
 
 .metallic-container {
-  @apply bg-linear-to-br from-gray-900 via-gray-800 to-gray-950 border-2 border-cyan-400 rounded-2xl p-8 shadow-[0_0_40px_#00f2ff40] relative;
+  @apply bg-linear-to-br from-gray-900 via-gray-800 to-gray-950 border-2 border-cyan-400 rounded-2xl p-4 md:p-6 shadow-[0_0_40px_#00f2ff40] relative;
+}
+
+.blue-box {
+  @apply bg-linear-to-br from-gray-900 via-gray-800 to-gray-950 border-2 border-cyan-400 rounded-2xl p-4 relative;
 }
 
 .metallic-box {
