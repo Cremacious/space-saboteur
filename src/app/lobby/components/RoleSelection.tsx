@@ -62,7 +62,7 @@ const RoleSelection = () => {
 
   return (
     <div className="">
-      <h3 className="neon-text text-lg mb-4 text-center space-font">
+      <h3 className="neon-text text-2xl text-center space-font">
         Select Role Cards (1/6)
       </h3>
       <div className="mt-6"></div>
@@ -71,28 +71,26 @@ const RoleSelection = () => {
           <div
             onClick={() => handleRoleSelect(card)}
             key={card.id}
-            className="metallic-box p-4 hoverAnimate justify-between flex flex-col"
+            className="metallic-box p-4 hoverAnimate flex flex-col min-h-[220px]"
           >
-            <div>
-              <div className="space-font text-xl font-bold mb-2 text-center neon-text">
-                {card.name}
-              </div>
-              <div className=" text-white text-center space-font">
-                {card.description}
-              </div>
+            <div className="space-font text-2xl font-bold mb-2 text-center neon-text">
+              {card.name}
+            </div>
+            <div className="flex-1 flex items-center justify-center text-white text-center space-font">
+              {card.description}
             </div>
             {selectedRoles.includes(card) && (
               <div>
-                <div className="bg-slate-800 rounded-xl p-2 mt-4 text-center text-white space-font border-2 border-white">
+                <div className="bg-cyan-800 rounded-xl p-1 text-center text-white space-font border-2 border-cyan-700">
                   <div>Selected</div>
 
                   {(card.id === 1 || card.id === 9) && (
-                    <div className="flex flex-row gap-6 justify-center items-center mt-2">
-                      <Button className="flex items-center justify-center">
+                    <div className="flex flex-row gap-6 justify-center items-center mt-1 mb-0.5">
+                      <Button className="flex items-center justify-center bg-white">
                         <Minus className="text-black" />
                       </Button>
-                      <div className="text-xl">1</div>
-                      <Button className="flex items-center justify-center">
+                      <div className="text-2xl">1</div>
+                      <Button className="flex items-center justify-center bg-white">
                         <Plus className="text-black" />
                       </Button>
                     </div>

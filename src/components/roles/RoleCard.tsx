@@ -7,7 +7,7 @@ const ROLE_ABILITY = `Wakes at 2 alongside other saboteurs. *If alone, they can 
 
 const RoleCard = () => {
   return (
-    <div className="metallic-box max-w-sm mx-auto border-4 border-cyan-400 shadow-[0_0_24px_#00f2ff80] rounded-3xl overflow-hidden flex flex-col bg-linear-to-br from-gray-900 via-gray-800 to-gray-950">
+    <div className="metallic-box hoverAnimate max-w-sm mx-auto border-4 border-cyan-400 shadow-[0_0_24px_#00f2ff80] rounded-3xl overflow-hidden flex flex-col bg-linear-to-br from-gray-900 via-gray-800 to-gray-950">
       <div className="w-full px-4 pt-4 pb-2 flex items-center justify-center border-b-2 border-cyan-400 ">
         <span className="text-white text-2xl space-font tracking-widest">
           {ROLE_NAME}
