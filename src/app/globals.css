@@ -99,7 +99,7 @@
 }
 
 .metallic-box {
-  @apply bg-linear-to-br from-gray-800 via-gray-600 to-gray-900 border-2 border-gray-400  rounded-2xl p-5 relative overflow-hidden;
+  @apply bg-linear-to-br from-gray-800 via-gray-600 to-gray-900 border-2 border-gray-900  rounded-2xl p-5 relative overflow-hidden;
 }
 
 .metallic-list-item {

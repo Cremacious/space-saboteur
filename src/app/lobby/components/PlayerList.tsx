@@ -2,16 +2,16 @@ const PlayerList = () => {
   const PLAYERS = [
     { id: 1, name: 'You' },
     { id: 2, name: 'Alex' },
-    { id: 3, name: 'Alex' },
-    { id: 4, name: 'Sam' },
-    { id: 5, name: 'Jordan' },
-    { id: 6, name: 'Taylor' },
-    { id: 7, name: 'Morgan' },
-    { id: 8, name: 'Casey' },
-    { id: 9, name: 'Riley' },
-    { id: 10, name: 'Jamie' },
-    { id: 11, name: 'Drew' },
-    { id: 12, name: 'Cameron' },
+    { id: 3, name: 'George' },
+    // { id: 4, name: 'Sam' },
+    // { id: 5, name: 'Jordan' },
+    // { id: 6, name: 'Taylor' },
+    // { id: 7, name: 'Morgan' },
+    // { id: 8, name: 'Casey' },
+    // { id: 9, name: 'Riley' },
+    // { id: 10, name: 'Jamie' },
+    // { id: 11, name: 'Drew' },
+    // { id: 12, name: 'Cameron' },
   ];
 
   return (
