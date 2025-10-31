@@ -39,12 +39,12 @@ const LobbyPage = () => {
               Game Settings
             </h2>
 
-            <div className="space-y-8 mt-4">
+            <div className="space-y-1 mt-4">
               <div className="flex flex-row justify-evenly items-center ">
                 <div className="flex justify-center">
-                  <Button variant={'defaultLarge'} className="text-3xl p-4">
+                  <button className="text-4xl p-6 bg-cyan-400 rounded-full font-bold space-font text-black hover:bg-cyan-500 transition-colors duration-150">
                     Start Game
-                  </Button>
+                  </button>
                 </div>
                 {/* Timer */}
                 <div className="space-y-4">
@@ -59,8 +59,9 @@ const LobbyPage = () => {
                   <TimeSelection />
                 </div>
               </div>
-
-              <RoleSelection />
+              <div className="mt-8">
+                <RoleSelection />
+              </div>
             </div>
           </div>
         </div>
