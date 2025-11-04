@@ -3,6 +3,7 @@ import PlayerList from './components/PlayerList';
 import InviteFriends from './components/InviteFriends';
 import RoleSelection from './components/RoleSelection';
 import TimeSelection from './components/TimeSelection';
+import { ROLES } from '@/lib/sampleData/rolesData';
 
 const roomCode = 'ABCDEF';
 
@@ -60,7 +61,7 @@ const LobbyPage = () => {
                 </div>
               </div>
               <div className="mt-8">
-                <RoleSelection />
+                <RoleSelection roles={ROLES} />
               </div>
             </div>
           </div>

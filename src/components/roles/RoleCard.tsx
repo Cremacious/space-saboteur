@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import saboteurImage from '@/assets/roles/saboteur-profile.png';
+import saboteurImage from '../../../public/assets/roles/saboteur-profile.png';
 
 const ROLE_NAME = 'Saboteur';
 const ROLE_DESCRIPTION = `The saboteur's goal is to secretly undermine the mission without getting caught.`;

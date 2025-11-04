@@ -27,7 +27,7 @@ const RoleSelectionCard = ({
     <div
       onClick={() => handleRoleSelect(card)}
       key={card.id}
-      className={`metallic-box hoverAnimate max-w-sm mx-auto border-4 border-cyan-400  rounded-3xl overflow-hidden flex flex-col bg-linear-to-br from-gray-900 via-gray-800 to-gray-950 cursor-pointer transition-all duration-150 ${
+      className={`metallic-box hoverAnimate w-full max-w-[340px] h-[540px] mx-auto border-4 border-cyan-400 rounded-3xl overflow-hidden flex flex-col bg-linear-to-br from-gray-900 via-gray-800 to-gray-950 cursor-pointer transition-all duration-150 ${
         isSelected ? 'ring-4 ring-cyan-400' : ''
       }`}
     >
@@ -47,13 +47,13 @@ const RoleSelectionCard = ({
       </div>
 
       <div className="py-4 w-full flex flex-col flex-1">
-        <div className="flex-1 flex items-center justify-center min-h-20">
+        <div className="flex-1 flex flex-col items-center justify-center min-h-20">
           <div className="text-white space-font font-semibold space-text text-center mb-2">
             {card.description}
           </div>
         </div>
         {isSelected && (
-          <div className="bg-cyan-900/30 border border-cyan-400 rounded-xl p-2 text-cyan-200 font-mono shadow-inner flex flex-col items-center">
+          <div className="bg-cyan-900/30 border border-cyan-400 rounded-xl p-2 text-cyan-200 font-mono shadow-inner flex flex-col items-center mt-2">
             <span className="uppercase text-cyan-300 space-font tracking-widest text-xs mt-1">
               Selected
             </span>
