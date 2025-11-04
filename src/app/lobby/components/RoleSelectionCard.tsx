@@ -47,7 +47,7 @@ const RoleSelectionCard = ({
       </div>
 
       <div className="py-4 w-full flex flex-col flex-1">
-        <div className="flex-1 flex items-center justify-center min-h-[80px]">
+        <div className="flex-1 flex items-center justify-center min-h-20">
           <div className="text-white space-font font-semibold space-text text-center mb-2">
             {card.description}
           </div>
