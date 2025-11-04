@@ -1,67 +1,31 @@
-'use client';
+import Link from 'next/link';
+import SignUpForm from './components/SignUpForm';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { signUp } from '@/lib/auth-client';
-
-export default function SignUpPage() {
-  const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-
-    const formData = new FormData(e.currentTarget);
-
-    const res = await signUp.email({
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-      password: formData.get('password') as string,
-    });
-
-    if (res.error) {
-      setError(res.error.message || 'Something went wrong.');
-    } else {
-      router.push('/dashboard');
-    }
-  }
-
+const SignUpPage = () => {
   return (
-    <main className="max-w-md mx-auto p-6 space-y-4 text-white">
-      <h1 className="text-2xl font-bold">Sign Up</h1>
-
-      {error && <p className="text-red-500">{error}</p>}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          name="name"
-          placeholder="Full Name"
-          required
-          className="w-full rounded-md bg-neutral-900 border border-neutral-700 px-3 py-2"
-        />
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          required
-          className="w-full rounded-md bg-neutral-900 border border-neutral-700 px-3 py-2"
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          required
-          minLength={8}
-          className="w-full rounded-md bg-neutral-900 border border-neutral-700 px-3 py-2"
-        />
-        <button
-          type="submit"
-          className="w-full bg-white text-black font-medium rounded-md px-4 py-2 hover:bg-gray-200"
-        >
-          Create Account
-        </button>
-      </form>
-    </main>
+    <div className="min-h-screen flex items-center justify-center p-2 md:p-6">
+      <div className="metallic-container max-w-md w-full p-8 flex flex-col items-center space-y-6 shadow-2xl">
+        <h1 className="neon-header space-font text-3xl mb-2 text-center">
+          Create Your Account
+        </h1>
+        <p className="text-cyan-200 space-font text-center mb-4">
+          Join Space Saboteur and outwit your friends among the stars!
+        </p>
+        <SignUpForm />
+        <div className="w-full flex justify-center mt-4">
+          <span className="text-white space-font text-sm">
+            Already have an account?{' '}
+            <Link
+              href="/sign-in"
+              className="text-cyan-300 underline hover:text-cyan-400 transition-colors duration-150 space-font"
+            >
+              Sign in
+            </Link>
+          </span>
+        </div>
+      </div>
+    </div>
   );
-}
+};
+
+export default SignUpPage;

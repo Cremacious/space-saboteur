@@ -10,6 +10,12 @@ export default function Home() {
       <Button className="m-4" asChild>
         <Link href="/lobby">Enter Lobby</Link>
       </Button>
+      <Button className="m-4" asChild>
+        <Link href="/sign-up">Sign Up</Link>
+      </Button>
+      <Button className="m-4" asChild>
+        <Link href="/signin">Sign In</Link>
+      </Button>
 
       <div>
         <RoleCard />
