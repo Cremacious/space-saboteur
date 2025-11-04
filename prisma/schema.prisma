@@ -25,9 +25,127 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
+    // Auth
+  sessions      Session[]
+  accounts      Account[]
+  verifications Verification[]
+
+  // Game logic
+  games         GamePlayer[]      
+  hostedGames   Game[]            @relation("HostGames")
+  friends       Friend[]          @relation("UserFriends")
+  friendOf      Friend[]          @relation("FriendOf")
+  invites       GameInvite[]      @relation("InvitesReceived")
+  sentInvites   GameInvite[]      @relation("InvitesSent")
+  stats         PlayerStats?
+
   @@unique([email])
   @@map("user")
 }
+
+
+
+model Friend {
+  id        String   @id @default(uuid())
+  user      User     @relation("UserFriends", fields: [userId], references: [id])
+  userId    String
+  friend    User     @relation("FriendOf", fields: [friendId], references: [id])
+  friendId  String
+  status    String   // "pending", "accepted", "blocked"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, friendId])
+}
+
+model Game {
+  id           String      @id @default(uuid())
+  code         String      @unique 
+  host         User        @relation("HostGames", fields: [hostId], references: [id])
+  hostId       String
+  status       String      // "lobby", "in_progress", "completed", "expired"
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  expiresAt    DateTime
+  rounds       Int
+  currentRound Int
+  settings     Json        
+  players      GamePlayer[]
+  invites      GameInvite[]
+  actions      GameAction[]
+  votes        Vote[]
+}
+
+model GamePlayer {
+  id        String   @id @default(uuid())
+  game      Game     @relation(fields: [gameId], references: [id])
+  gameId    String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  role      Role     @relation(fields: [roleId], references: [id])
+  roleId    String
+  isReady   Boolean  @default(false)
+  eliminated Boolean @default(false)
+  joinedAt  DateTime @default(now())
+}
+
+model GameInvite {
+  id          String   @id @default(uuid())
+  game        Game     @relation(fields: [gameId], references: [id])
+  gameId      String
+  sender      User     @relation("InvitesSent", fields: [senderId], references: [id])
+  senderId    String
+  recipient   User     @relation("InvitesReceived", fields: [recipientId], references: [id])
+  recipientId String
+  status      String   
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  ability     String
+  image       String
+}
+
+model GameAction {
+  id        String   @id @default(uuid())
+  game      Game     @relation(fields: [gameId], references: [id])
+  gameId    String
+  player    GamePlayer @relation(fields: [playerId], references: [id])
+  playerId  String
+  round     Int
+  action    String   
+  target    String?  
+  createdAt DateTime @default(now())
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  game      Game     @relation(fields: [gameId], references: [id])
+  gameId    String
+  voter     GamePlayer @relation(fields: [voterId], references: [id])
+  voterId   String
+  votedFor  GamePlayer @relation(fields: [votedForId], references: [id])
+  votedForId String
+  round     Int
+  createdAt DateTime @default(now())
+}
+
+model PlayerStats {
+  id             String   @id @default(uuid())
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String   @unique
+  gamesPlayed    Int      @default(0)
+  gamesWon       Int      @default(0)
+  gamesLost      Int      @default(0)
+  saboteurGames  Int      @default(0)
+  saboteurWins   Int      @default(0)
+  mostPlayedRole String?
+}
+
 
 model Session {
   id        String   @id

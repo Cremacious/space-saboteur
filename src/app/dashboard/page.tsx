@@ -2,8 +2,12 @@ import Header from '@/components/layout/Header';
 import GameActions from './components/GameActions';
 import GameStats from './components/GameStats';
 import FriendsList from './components/FriendsList';
+import { getCurrentServerUser } from '@/lib/auth-server';
 
-const DashboardPage = () => {
+const DashboardPage = async () => {
+  const user = await getCurrentServerUser();
+  // console.log(user);
+
   return (
     <div className="min-h-screen flex items-center  text-white font-sans">
       <div className="max-w-6xl mx-auto py-10 px-4">
