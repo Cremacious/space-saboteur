@@ -1,6 +1,7 @@
 import { createNewLobby } from '@/actions/lobby.action';
 import { create } from 'zustand';
 import { useRouter } from 'next/navigation';
+import { devtools } from 'zustand/middleware';
 
 // TODO: Add host to list of players
 // TODO: Add players via invite
@@ -21,11 +22,12 @@ type LobbyStore = {
   maxPlayers: number;
   lobbyStatus: 'waiting' | 'ready' | 'started';
   isCreatingGame: boolean;
+
   addPlayer: (player: Player) => void;
   removePlayer: (playerId: string) => void;
   inviteFriend: (friendId: string) => void;
   setSelectedRoles: (roles: RoleCard[]) => void;
-  setRoundTimer: (seconds: number) => void;
+  setRoundTimer: (minutes: number) => void;
   setPlayerReady: (playerId: string, ready: boolean) => void;
   startGame: () => void;
   createGame: (
@@ -33,62 +35,65 @@ type LobbyStore = {
   ) => Promise<{ code: string; hostId: string } | undefined>;
 };
 
-export const useLobbyStore = create<LobbyStore>((set, get) => ({
-  roomCode: '',
-  hostId: '',
-  players: [],
-  invitedFriends: [],
-  selectedRoles: [],
-  roundTimer: 120,
-  minPlayers: 3,
-  maxPlayers: 12,
-  lobbyStatus: 'waiting',
-  isCreatingGame: false,
-  createGame: async (
-    router: ReturnType<typeof useRouter>
-  ): Promise<{ code: string; hostId: string } | undefined> => {
-    set({ isCreatingGame: true });
-    try {
-      const game = await createNewLobby();
+export const useLobbyStore = create<LobbyStore>()(
+  devtools((set, get) => ({
+    roomCode: '',
+    hostId: '',
+    players: [],
+    invitedFriends: [],
+    selectedRoles: [],
+    roundTimer: 180,
+    minPlayers: 3,
+    maxPlayers: 12,
+    lobbyStatus: 'waiting',
+    isCreatingGame: false,
 
-      set({
-        roomCode: game.code,
-        hostId: game.hostId,
-        lobbyStatus: 'waiting',
-        players: game.players.map((p: BackendPlayer) => ({
-          id: p.userId,
-          name: p.name,
-          isHost: p.userId === game.hostId,
-          isReady: p.isReady,
-        })),
-      });
-      router.push(`/lobby/${game.code}`);
-    } catch (error) {
-      console.error('Failed to create lobby:', error);
-      return undefined;
-    } finally {
-      set({ isCreatingGame: false });
-    }
-  },
-  addPlayer: (player) => {
-    /* put logic here */
-  },
-  removePlayer: (playerId) => {
-    /* put logic here */
-  },
-  inviteFriend: (friendId) => {
-    /* put logic here */
-  },
-  setSelectedRoles: (roles) => {
-    /* put logic here */
-  },
-  setRoundTimer: (seconds) => {
-    /* put logic here */
-  },
-  setPlayerReady: (playerId, ready) => {
-    /* put logic here */
-  },
-  startGame: () => {
-    /* put logic here */
-  },
-}));
+    createGame: async (
+      router: ReturnType<typeof useRouter>
+    ): Promise<{ code: string; hostId: string } | undefined> => {
+      set({ isCreatingGame: true });
+      try {
+        const game = await createNewLobby();
+
+        set({
+          roomCode: game.code,
+          hostId: game.hostId,
+          lobbyStatus: 'waiting',
+          players: game.players.map((p: BackendPlayer) => ({
+            id: p.userId,
+            name: p.name,
+            isHost: p.userId === game.hostId,
+            isReady: p.isReady,
+          })),
+        });
+        router.push(`/lobby/${game.code}`);
+      } catch (error) {
+        console.error('Failed to create lobby:', error);
+        return undefined;
+      } finally {
+        set({ isCreatingGame: false });
+      }
+    },
+    addPlayer: (player) => {
+      /* put logic here */
+    },
+    removePlayer: (playerId) => {
+      /* put logic here */
+    },
+    inviteFriend: (friendId) => {
+      /* put logic here */
+    },
+    setSelectedRoles: (roles) => {
+      /* put logic here */
+    },
+    setRoundTimer: (minutes) => {
+      set({ roundTimer: minutes * 60 });
+    },
+    setPlayerReady: (playerId, ready) => {
+      /* put logic here */
+    },
+    startGame: () => {
+      /* put logic here */
+    },
+  }))
+);

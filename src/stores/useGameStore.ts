@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 
-type Player = { id: string; name: string; eliminated: boolean; roleId: number; isReady: boolean };
+type Player = {
+  id: string;
+  name: string;
+  eliminated: boolean;
+  roleId: number;
+  isReady: boolean;
+};
 type RoleCard = { id: number; name: string; description: string };
 
 export const useGameStore = create<{
@@ -9,10 +15,10 @@ export const useGameStore = create<{
   round: number;
   totalRounds: number;
   currentTurn: number;
-  turnOrder: string[]; 
+  turnOrder: string[];
   gamePhase: 'turns' | 'discussion' | 'voting' | 'end';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  actions: any[]; 
+  actions: any[];
   assignRoles: () => void;
   nextTurn: () => void;
   completeTurn: () => void;
@@ -30,11 +36,25 @@ export const useGameStore = create<{
   turnOrder: [],
   gamePhase: 'turns',
   actions: [],
-  assignRoles: () => { /* put logic here */ },
-  nextTurn: () => { /* put logic here */ },
-  completeTurn: () => { /* put logic here */ },
-  startDiscussion: () => { /* put logic here */ },
-  startVoting: () => { /* put logic here */ },
-  eliminatePlayer: (playerId) => { /* put logic here */ },
-  resetGame: () => { /* put logic here */ },
+  assignRoles: () => {
+    /* put logic here */
+  },
+  nextTurn: () => {
+    /* put logic here */
+  },
+  completeTurn: () => {
+    /* put logic here */
+  },
+  startDiscussion: () => {
+    /* put logic here */
+  },
+  startVoting: () => {
+    /* put logic here */
+  },
+  eliminatePlayer: (playerId) => {
+    /* put logic here */
+  },
+  resetGame: () => {
+    /* put logic here */
+  },
 }));
