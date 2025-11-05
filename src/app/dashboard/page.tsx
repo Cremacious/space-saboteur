@@ -2,12 +2,12 @@ import Header from '@/components/layout/Header';
 import GameActions from './components/GameActions';
 import GameStats from './components/GameStats';
 import FriendsList from './components/FriendsList';
-import { getCurrentServerUser } from '@/lib/auth-server';
+import { getAuthenticatedUser } from '@/lib/auth-server';
 import { redirect } from 'next/navigation';
 
 const DashboardPage = async () => {
-  const user = await getCurrentServerUser();
-  if (!user) {
+  const { user, error } = await getAuthenticatedUser();
+  if (error) {
     redirect('/sign-in');
   }
 

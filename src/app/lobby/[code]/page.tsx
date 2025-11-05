@@ -5,9 +5,9 @@ import RoleSelection from './components/RoleSelection';
 import TimeSelection from './components/TimeSelection';
 import { ROLES } from '@/lib/sampleData/rolesData';
 
-const roomCode = 'ABCDEF';
+const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
+  const { code } = await params;
 
-const LobbyPage = () => {
   return (
     <div className="min-h-screen flex items-center">
       <div className=" mx-auto w-full">
@@ -21,7 +21,7 @@ const LobbyPage = () => {
               <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-4">
                 <div>
                   <div className="text-2xl font-bold space-font text-center text-white">
-                    Game Code: {roomCode}
+                    Game Code: {code}
                   </div>
                 </div>
                 <Button variant={'defaultLarge'}>Copy Code</Button>

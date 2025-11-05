@@ -11,6 +11,7 @@ export const useGameStore = create<{
   currentTurn: number;
   turnOrder: string[]; 
   gamePhase: 'turns' | 'discussion' | 'voting' | 'end';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actions: any[]; 
   assignRoles: () => void;
   nextTurn: () => void;
