@@ -47,3 +47,54 @@ export async function createNewLobby() {
     throw new Error('Failed to create new game');
   }
 }
+
+export async function getLobbyByCode(code: string) {
+  try {
+    const game = await prisma.game.findUnique({
+      where: { code },
+      include: {
+        host: true,
+        invites: true,
+        players: true,
+      },
+    });
+    if (!game) {
+      throw new Error('Game not found');
+    }
+    return game;
+  } catch (error) {
+    console.error('Error fetching game by code:', error);
+    throw new Error('Failed to fetch game');
+  }
+}
+
+export async function checkAuthorizedGameAccess(code: string, userId: string) {
+  try {
+    const game = await prisma.game.findUnique({
+      where: { code },
+      include: {
+        host: true,
+        invites: true,
+        players: true,
+      },
+    });
+    if (!game) {
+      throw new Error('Game not found');
+    }
+    const isHost = game.hostId === userId;
+    const isPlayer = game.players.some((player) => player.userId === userId);
+    const isInvited = game.invites.some(
+      (invite) => invite.recipientId === userId
+    );
+    if (!isHost && !isPlayer && !isInvited) {
+      return { success: false, game: null };
+    }
+    console.log(userId);
+    return { success: true, game };
+  } catch (error) {
+    console.error('Error checking authorized game access:', error);
+    throw new Error('Failed to check authorized game access');
+  }
+}
+
+

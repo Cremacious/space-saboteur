@@ -4,13 +4,27 @@ import InviteFriends from './components/InviteFriends';
 import RoleSelection from './components/RoleSelection';
 import TimeSelection from './components/TimeSelection';
 import { ROLES } from '@/lib/sampleData/rolesData';
+import StartGameButton from './components/StartGameButton';
+import { getAuthenticatedUser } from '@/lib/auth-server';
+import { redirect } from 'next/navigation';
+import { checkAuthorizedGameAccess } from '@/actions/lobby.action';
 
 const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
   const { code } = await params;
+  const { user, error } = await getAuthenticatedUser();
+  if (error) {
+    redirect('/login');
+  }
+
+  const currentGame = await checkAuthorizedGameAccess(code, user!.id);
+
+  if (!currentGame) {
+    redirect('/dashboard');
+  }
 
   return (
     <div className="min-h-screen flex items-center">
-      <div className=" mx-auto w-full">
+      <div className="mx-auto w-full">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-10 px-4 items-start">
           {/* Lobby */}
           <div className="metallic-container space-y-8">
@@ -43,9 +57,9 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
             <div className="space-y-1 mt-4">
               <div className="flex flex-row justify-evenly items-center ">
                 <div className="flex justify-center">
-                  <button className="text-4xl p-6 bg-cyan-400 rounded-full font-bold space-font text-black hover:bg-cyan-500 transition-colors duration-150">
-                    Start Game
-                  </button>
+                  {currentGame.game && (
+                    <StartGameButton game={currentGame.game} code={code} />
+                  )}
                 </div>
                 {/* Timer */}
                 <div className="space-y-4">
@@ -55,6 +69,9 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
                     </h3>
                     <h3 className="text-white text-md text-center space-font">
                       Determines how long each discussion round lasts.
+                      {currentGame.game?.players.map((player) => (
+                        <div key={player.id}>{player.name}</div>
+                      ))}
                     </h3>
                   </div>
                   <TimeSelection />

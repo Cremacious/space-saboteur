@@ -4,12 +4,15 @@ import GameStats from './components/GameStats';
 import FriendsList from './components/FriendsList';
 import { getAuthenticatedUser } from '@/lib/auth-server';
 import { redirect } from 'next/navigation';
+import { getGamesByUser } from '@/actions/game.action';
 
 const DashboardPage = async () => {
   const { user, error } = await getAuthenticatedUser();
   if (error) {
     redirect('/sign-in');
   }
+
+  const games = await getGamesByUser(user!.id);
 
   return (
     <div className="min-h-screen flex items-center  text-white font-sans">
@@ -19,7 +22,7 @@ const DashboardPage = async () => {
         {user?.name}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-8">
-            <GameActions />
+            <GameActions games={games} />
             <GameStats />
           </div>
 

@@ -23,6 +23,8 @@ type LobbyStore = {
   lobbyStatus: 'waiting' | 'ready' | 'started';
   isCreatingGame: boolean;
 
+  setPlayers: (players: Player[]) => void;
+  setRoomCode: (code: string) => void;
   addPlayer: (player: Player) => void;
   removePlayer: (playerId: string) => void;
   inviteFriend: (friendId: string) => void;
@@ -74,6 +76,12 @@ export const useLobbyStore = create<LobbyStore>()(
         set({ isCreatingGame: false });
       }
     },
+    setRoomCode: (code) => {
+      set({ roomCode: code });
+    },
+    setPlayers: (players) => {
+      set({ players });
+    },
     addPlayer: (player) => {
       /* put logic here */
     },
@@ -90,7 +98,7 @@ export const useLobbyStore = create<LobbyStore>()(
       set({ roundTimer: minutes * 60 });
     },
     setPlayerReady: (playerId, ready) => {
-      /* put logic here */
+     
     },
     startGame: () => {
       /* put logic here */
