@@ -1,4 +1,4 @@
-import { createNewGame } from '@/actions/game.action';
+import { createNewLobby } from '@/actions/lobby.action';
 import { create } from 'zustand';
 import { useRouter } from 'next/navigation';
 
@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 
 type Player = { id: string; name: string; isHost: boolean; isReady: boolean };
 type RoleCard = { id: number; name: string; description: string };
+type BackendPlayer = { userId: string; isReady: boolean; name: string };
 
 type LobbyStore = {
   roomCode: string;
@@ -27,7 +28,9 @@ type LobbyStore = {
   setRoundTimer: (seconds: number) => void;
   setPlayerReady: (playerId: string, ready: boolean) => void;
   startGame: () => void;
-  createGame: (router: ReturnType<typeof useRouter>) => Promise<{ code: string; hostId: string } | undefined>;
+  createGame: (
+    router: ReturnType<typeof useRouter>
+  ) => Promise<{ code: string; hostId: string } | undefined>;
 };
 
 export const useLobbyStore = create<LobbyStore>((set, get) => ({
@@ -41,17 +44,27 @@ export const useLobbyStore = create<LobbyStore>((set, get) => ({
   maxPlayers: 12,
   lobbyStatus: 'waiting',
   isCreatingGame: false,
-  createGame: async (router: ReturnType<typeof useRouter>): Promise<
-    { code: string; hostId: string } | undefined
-  > => {
+  createGame: async (
+    router: ReturnType<typeof useRouter>
+  ): Promise<{ code: string; hostId: string } | undefined> => {
     set({ isCreatingGame: true });
     try {
-      const game = await createNewGame();
-      set({ roomCode: game.code, hostId: game.hostId, lobbyStatus: 'waiting' });
-      console.log(game);
-      router.push(`/lobby/${game.code}`)
+      const game = await createNewLobby();
+
+      set({
+        roomCode: game.code,
+        hostId: game.hostId,
+        lobbyStatus: 'waiting',
+        players: game.players.map((p: BackendPlayer) => ({
+          id: p.userId,
+          name: p.name,
+          isHost: p.userId === game.hostId,
+          isReady: p.isReady,
+        })),
+      });
+      router.push(`/lobby/${game.code}`);
     } catch (error) {
-      console.error('Failed to create game:', error);
+      console.error('Failed to create lobby:', error);
       return undefined;
     } finally {
       set({ isCreatingGame: false });

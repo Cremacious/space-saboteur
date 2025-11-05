@@ -1,18 +1,8 @@
+'use client';
+import { useLobbyStore } from '@/stores/useLobbyStore';
+
 const PlayerList = () => {
-  const PLAYERS = [
-    { id: 1, name: 'You' },
-    { id: 2, name: 'Alex' },
-    { id: 3, name: 'George' },
-    // { id: 4, name: 'Sam' },
-    // { id: 5, name: 'Jordan' },
-    // { id: 6, name: 'Taylor' },
-    // { id: 7, name: 'Morgan' },
-    // { id: 8, name: 'Casey' },
-    // { id: 9, name: 'Riley' },
-    // { id: 10, name: 'Jamie' },
-    // { id: 11, name: 'Drew' },
-    // { id: 12, name: 'Cameron' },
-  ];
+  const { players } = useLobbyStore();
 
   return (
     <div className="blue-box">
@@ -20,7 +10,7 @@ const PlayerList = () => {
         Players In Lobby (3)
       </h3>
       <ul className="space-y-3">
-        {PLAYERS.map((player) => (
+        {players.map((player) => (
           <li
             key={player.id}
             className="metallic-list-item flex items-center justify-between "
