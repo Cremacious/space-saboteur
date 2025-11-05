@@ -1,6 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import CreateGameButton from './CreateGameButton';
 
 const GameActions = () => {
   return (
@@ -8,7 +9,7 @@ const GameActions = () => {
       <h2 className="neon-header space-font">Game Lobby</h2>
       <div className="flex flex-col md:flex-row gap-4 md:gap-8 md:justify-center">
         <Link href="/lobby">
-          <Button className="w-full md:w-auto">Create New Game</Button>
+          <CreateGameButton />
         </Link>
         <form className="flex gap-2 items-center">
           <Input

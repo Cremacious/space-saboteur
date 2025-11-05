@@ -25,9 +25,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-    // Auth
-  sessions      Session[]
-  accounts      Account[]
+ 
   verifications Verification[]
 
   // Game logic
@@ -87,6 +85,10 @@ model GamePlayer {
   isReady   Boolean  @default(false)
   eliminated Boolean @default(false)
   joinedAt  DateTime @default(now())
+
+  votesCast   Vote[] @relation("Voter")
+  votesReceived Vote[] @relation("VotedFor")
+  actions      GameAction[] @relation("GamePlayerActions")
 }
 
 model GameInvite {
@@ -103,18 +105,19 @@ model GameInvite {
 }
 
 model Role {
-  id          String   @id @default(uuid())
+  id          String        @id @default(uuid())
   name        String
   description String
   ability     String
   image       String
+  gamePlayers GamePlayer[]  // Opposite relation field
 }
 
 model GameAction {
   id        String   @id @default(uuid())
-  game      Game     @relation(fields: [gameId], references: [id])
   gameId    String
-  player    GamePlayer @relation(fields: [playerId], references: [id])
+  game      Game     @relation(fields: [gameId], references: [id])
+  player    GamePlayer @relation("GamePlayerActions", fields: [playerId], references: [id])
   playerId  String
   round     Int
   action    String   
@@ -126,9 +129,9 @@ model Vote {
   id        String   @id @default(uuid())
   game      Game     @relation(fields: [gameId], references: [id])
   gameId    String
-  voter     GamePlayer @relation(fields: [voterId], references: [id])
+  voter     GamePlayer @relation("Voter", fields: [voterId], references: [id])
   voterId   String
-  votedFor  GamePlayer @relation(fields: [votedForId], references: [id])
+  votedFor  GamePlayer @relation("VotedFor", fields: [votedForId], references: [id])
   votedForId String
   round     Int
   createdAt DateTime @default(now())
@@ -188,6 +191,9 @@ model Verification {
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now()) @updatedAt
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
 
   @@map("verification")
 }

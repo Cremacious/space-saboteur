@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { Button } from '../ui/button';
 import Sidebar from './Sidebar';
+import LogoutButton from './LogoutButton';
 
 const Header = () => {
   return (
@@ -31,7 +31,7 @@ const Header = () => {
         >
           Settings
         </Link>
-        <Button className="ml-2">Logout</Button>
+        <LogoutButton />
       </div>
       <div className="md:hidden">
         <Sidebar />
