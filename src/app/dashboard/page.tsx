@@ -5,6 +5,7 @@ import FriendsList from './components/FriendsList';
 import { getAuthenticatedUser } from '@/lib/auth-server';
 import { redirect } from 'next/navigation';
 import { getGamesByUser } from '@/actions/game.action';
+import { getFriendsList } from '@/actions/friend.action';
 
 const DashboardPage = async () => {
   const { user, error } = await getAuthenticatedUser();

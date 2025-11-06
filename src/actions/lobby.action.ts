@@ -82,9 +82,11 @@ export async function checkAuthorizedGameAccess(code: string, userId: string) {
       throw new Error('Game not found');
     }
     const isHost = game.hostId === userId;
-    const isPlayer = game.players.some((player) => player.userId === userId);
+    const isPlayer = game.players.some(
+      (player: { userId: string }) => player.userId === userId
+    );
     const isInvited = game.invites.some(
-      (invite) => invite.recipientId === userId
+      (invite: { recipientId: string }) => invite.recipientId === userId
     );
     if (!isHost && !isPlayer && !isInvited) {
       return { success: false, game: null };
@@ -97,4 +99,35 @@ export async function checkAuthorizedGameAccess(code: string, userId: string) {
   }
 }
 
+export async function inviteFriendToLobby(
+  gameCode: string,
+  recipientId: string
+) {
+  try {
+    const game = await prisma.game.findUnique({
+      where: { code: gameCode },
+    });
+    if (!game) {
+      throw new Error('Game not found');
+    }
 
+    const recipient = await prisma.user.findUnique({
+      where: { id: recipientId },
+    });
+    if (!recipient) {
+      throw new Error('User not found');
+    }
+
+    await prisma.gameInvite.create({
+      data: {
+        gameId: game.id,
+        senderId: game.hostId, 
+        recipientId: recipient.id,
+        status: 'pending', 
+      },
+    });
+  } catch (error) {
+    console.error('Error inviting player to lobby:', error);
+    throw new Error('Failed to invite player to lobby');
+  }
+}

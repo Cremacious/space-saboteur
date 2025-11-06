@@ -1,4 +1,4 @@
-import { createNewLobby } from '@/actions/lobby.action';
+import { createNewLobby, inviteFriendToLobby } from '@/actions/lobby.action';
 import { create } from 'zustand';
 import { useRouter } from 'next/navigation';
 import { devtools } from 'zustand/middleware';
@@ -56,18 +56,28 @@ export const useLobbyStore = create<LobbyStore>()(
       set({ isCreatingGame: true });
       try {
         const game = await createNewLobby();
+        console.log(game);
 
         set({
           roomCode: game.code,
           hostId: game.hostId,
           lobbyStatus: 'waiting',
-          players: game.players.map((p: BackendPlayer) => ({
-            id: p.userId,
-            name: p.name,
-            isHost: p.userId === game.hostId,
-            isReady: p.isReady,
-          })),
+          players: game.players.map((p: BackendPlayer) => {
+            console.log(
+              'Comparing:',
+              p.userId,
+              game.hostId,
+              p.userId === game.hostId
+            );
+            return {
+              id: p.userId,
+              name: p.name,
+              isHost: p.userId === game.hostId,
+              isReady: p.isReady,
+            };
+          }),
         });
+
         router.push(`/lobby/${game.code}`);
       } catch (error) {
         console.error('Failed to create lobby:', error);
@@ -82,24 +92,18 @@ export const useLobbyStore = create<LobbyStore>()(
     setPlayers: (players) => {
       set({ players });
     },
-    addPlayer: (player) => {
-      /* put logic here */
-    },
+    addPlayer: (player) => {},
     removePlayer: (playerId) => {
       /* put logic here */
     },
-    inviteFriend: (friendId) => {
-      /* put logic here */
-    },
+    inviteFriend: (friendId) => {},
     setSelectedRoles: (roles) => {
       /* put logic here */
     },
     setRoundTimer: (minutes) => {
       set({ roundTimer: minutes * 60 });
     },
-    setPlayerReady: (playerId, ready) => {
-     
-    },
+    setPlayerReady: (playerId, ready) => {},
     startGame: () => {
       /* put logic here */
     },

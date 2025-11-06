@@ -3,22 +3,32 @@ import { useLobbyStore } from '@/stores/useLobbyStore';
 import { useEffect } from 'react';
 import { GameType } from '@/lib/types/game.type';
 
-const StartGameButton = ({ code, game }: { code: string; game: GameType }) => {
+const StartGameButton = ({
+  code,
+  game,
+  currentUserId,
+}: {
+  code: string;
+  game: GameType;
+  currentUserId: string;
+}) => {
   const { setRoomCode, setPlayers } = useLobbyStore();
 
   useEffect(() => {
     if (code) setRoomCode(code);
     if (game) {
       game.players.forEach(() => {
-        setPlayers(game.players.map((p) => ({
-          id: p.id,
-          name: p.name,
-          isHost: !!p.isHost,
-          isReady: !!p.isReady,
-        })));
+        setPlayers(
+          game.players.map((p) => ({
+            id: p.id,
+            name: p.name,
+            isHost: currentUserId === game.hostId,
+            isReady: !!p.isReady,
+          }))
+        );
       });
     }
-  }, [code, game, setRoomCode, setPlayers]);
+  }, [code, game, setRoomCode, setPlayers, currentUserId]);
 
   const handleStartGame = () => {};
 

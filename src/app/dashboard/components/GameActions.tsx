@@ -4,6 +4,8 @@ import CreateGameButton from './CreateGameButton';
 import { GameType } from '@/lib/types/game.type';
 import JoinGameButton from './JoinGameButton';
 
+//TODO: Handle no games case styling
+
 const GameActions = ({ games }: { games: GameType[] }) => {
   return (
     <div className="metallic-container">
@@ -24,6 +26,11 @@ const GameActions = ({ games }: { games: GameType[] }) => {
       <div className="mt-8 space-y-4">
         <h3 className="neon-text mb-4 space-font text-center">Current Games</h3>
         <ul className="space-y-4">
+          {games.length === 0 ? (
+            <div className="text-center neon-text space-font">
+              No active games. Create or join a game to get started!
+            </div>
+          ) : null}
           {games.map((game) => (
             <li
               key={game.id}

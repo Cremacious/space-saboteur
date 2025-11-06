@@ -58,7 +58,7 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
               <div className="flex flex-row justify-evenly items-center ">
                 <div className="flex justify-center">
                   {currentGame.game && (
-                    <StartGameButton game={currentGame.game} code={code} />
+                    <StartGameButton currentUserId={user!.id} game={currentGame.game} code={code} />
                   )}
                 </div>
                 {/* Timer */}
