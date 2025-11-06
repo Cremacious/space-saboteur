@@ -6,22 +6,11 @@ import {
   rejectFriendRequest,
   removeFriend,
 } from '@/actions/friend.action';
-
-interface Friend {
-  id: string;
-  name: string;
-  email: string;
-  image?: string | null;
-}
-
-interface PendingRequest {
-  id: string;
-  sender: Friend;
-}
+import { FriendType, PendingRequestType } from '@/lib/types/friend.type';
 
 interface FriendStore {
-  friends: Friend[];
-  pendingRequests: PendingRequest[];
+  friends: FriendType[];
+  pendingRequests: PendingRequestType[];
   isLoading: boolean;
   loadFriends: () => Promise<void>;
   sendFriendRequest: (email: string) => Promise<void>;
@@ -49,7 +38,7 @@ export const useFriendStore = create<FriendStore>((set, get) => ({
     set({ isLoading: true });
     try {
       await sendFriendRequest(email);
-      await get().loadFriends(); // Reload after sending
+      await get().loadFriends();
     } catch (error) {
       console.error('Failed to send friend request:', error);
       throw error;
@@ -61,7 +50,7 @@ export const useFriendStore = create<FriendStore>((set, get) => ({
     set({ isLoading: true });
     try {
       await acceptFriendRequest(requestId);
-      await get().loadFriends(); // Reload after accepting
+      await get().loadFriends();
     } catch (error) {
       console.error('Failed to accept friend request:', error);
       throw error;
@@ -73,7 +62,7 @@ export const useFriendStore = create<FriendStore>((set, get) => ({
     set({ isLoading: true });
     try {
       await rejectFriendRequest(requestId);
-      await get().loadFriends(); // Reload after rejecting
+      await get().loadFriends();
     } catch (error) {
       console.error('Failed to reject friend request:', error);
       throw error;
@@ -85,7 +74,7 @@ export const useFriendStore = create<FriendStore>((set, get) => ({
     set({ isLoading: true });
     try {
       await removeFriend(friendId);
-      await get().loadFriends(); // Reload after removing
+      await get().loadFriends();
     } catch (error) {
       console.error('Failed to remove friend:', error);
       throw error;

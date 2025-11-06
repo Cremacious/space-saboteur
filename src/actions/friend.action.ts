@@ -23,15 +23,27 @@ export async function getFriendsList() {
       },
     });
 
-    const friends = friendships.map((f) => {
-      const otherUser = f.userId === user.id ? f.friend : f.user;
-      return {
-        id: otherUser.id,
-        name: otherUser.name,
-        email: otherUser.email,
-        image: otherUser.image,
-      };
-    });
+    const friends = friendships.map(
+      (f: {
+        userId: string;
+        friendId: string;
+        user: { id: string; name: string; email: string; image: string | null };
+        friend: {
+          id: string;
+          name: string;
+          email: string;
+          image: string | null;
+        };
+      }) => {
+        const otherUser = f.userId === user.id ? f.friend : f.user;
+        return {
+          id: otherUser.id,
+          name: otherUser.name,
+          email: otherUser.email,
+          image: otherUser.image,
+        };
+      }
+    );
 
     const pendingRequests = await prisma.friend.findMany({
       where: {
@@ -39,7 +51,7 @@ export async function getFriendsList() {
         status: 'pending',
       },
       include: {
-        user: true, 
+        user: true,
       },
     });
 

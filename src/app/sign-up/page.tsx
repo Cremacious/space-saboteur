@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import SignUpForm from './components/SignUpForm';
 
+//TODO: Fix bug in which Doctor and 123123 did not work for sign up
+
 const SignUpPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-2 md:p-6">
