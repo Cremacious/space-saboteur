@@ -55,15 +55,20 @@ export async function getFriendsList() {
       },
     });
 
-    const pending = pendingRequests.map((p) => ({
-      id: p.id,
-      sender: {
-        id: p.user.id,
-        name: p.user.name,
-        email: p.user.email,
-        image: p.user.image,
-      },
-    }));
+    const pending = pendingRequests.map(
+      (p: {
+        id: string;
+        user: { id: string; name: string; email: string; image: string | null };
+      }) => ({
+        id: p.id,
+        sender: {
+          id: p.user.id,
+          name: p.user.name,
+          email: p.user.email,
+          image: p.user.image,
+        },
+      })
+    );
 
     return {
       friends,
