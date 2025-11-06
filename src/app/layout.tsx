@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import './globals.css'
-
+import { Toaster } from '@/components/ui/sonner';
+import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Space Saboteur',
@@ -16,6 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased bg-linear-to-br from-slate-900 via-gray-700 to-gray-950">
         {children}
+        <Toaster />
       </body>
     </html>
   );

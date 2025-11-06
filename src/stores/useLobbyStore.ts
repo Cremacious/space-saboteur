@@ -2,6 +2,7 @@ import { createNewLobby, inviteFriendToLobby } from '@/actions/lobby.action';
 import { create } from 'zustand';
 import { useRouter } from 'next/navigation';
 import { devtools } from 'zustand/middleware';
+import { toast } from 'sonner';
 
 // TODO: Add host to list of players
 // TODO: Add players via invite
@@ -56,8 +57,6 @@ export const useLobbyStore = create<LobbyStore>()(
       set({ isCreatingGame: true });
       try {
         const game = await createNewLobby();
-        console.log(game);
-
         set({
           roomCode: game.code,
           hostId: game.hostId,
@@ -79,6 +78,7 @@ export const useLobbyStore = create<LobbyStore>()(
         });
 
         router.push(`/lobby/${game.code}`);
+        toast.success('Lobby created successfully!');
       } catch (error) {
         console.error('Failed to create lobby:', error);
         return undefined;
@@ -96,7 +96,18 @@ export const useLobbyStore = create<LobbyStore>()(
     removePlayer: (playerId) => {
       /* put logic here */
     },
-    inviteFriend: (friendId) => {},
+    inviteFriend: async (friendId: string) => {
+      try {
+        await inviteFriendToLobby(get().roomCode, friendId);
+        set((state) => ({
+          invitedFriends: [...state.invitedFriends, friendId],
+        }));
+        toast.success('Invite sent!');
+      } catch (error) {
+        console.log('Failed to send invite:', error);
+        toast.error('Failed to send invite');
+      }
+    },
     setSelectedRoles: (roles) => {
       /* put logic here */
     },

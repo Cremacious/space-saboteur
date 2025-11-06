@@ -9,6 +9,8 @@ import { getAuthenticatedUser } from '@/lib/auth-server';
 import { redirect } from 'next/navigation';
 import { checkAuthorizedGameAccess } from '@/actions/lobby.action';
 
+//TODO: only show invite friends if user is the host
+
 const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
   const { code } = await params;
   const { user, error } = await getAuthenticatedUser();
@@ -58,7 +60,11 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
               <div className="flex flex-row justify-evenly items-center ">
                 <div className="flex justify-center">
                   {currentGame.game && (
-                    <StartGameButton currentUserId={user!.id} game={currentGame.game} code={code} />
+                    <StartGameButton
+                      currentUserId={user!.id}
+                      game={currentGame.game}
+                      code={code}
+                    />
                   )}
                 </div>
                 {/* Timer */}
@@ -69,9 +75,6 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
                     </h3>
                     <h3 className="text-white text-md text-center space-font">
                       Determines how long each discussion round lasts.
-                      {currentGame.game?.players.map((player) => (
-                        <div key={player.id}>{player.name}</div>
-                      ))}
                     </h3>
                   </div>
                   <TimeSelection />

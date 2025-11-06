@@ -7,6 +7,7 @@ import {
   removeFriend,
 } from '@/actions/friend.action';
 import { FriendType, PendingRequestType } from '@/lib/types/friend.type';
+import { toast } from 'sonner';
 
 interface FriendStore {
   friends: FriendType[];
@@ -39,6 +40,7 @@ export const useFriendStore = create<FriendStore>((set, get) => ({
     try {
       await sendFriendRequest(email);
       await get().loadFriends();
+      toast.success('Friend request sent!');
     } catch (error) {
       console.error('Failed to send friend request:', error);
       throw error;
@@ -51,6 +53,7 @@ export const useFriendStore = create<FriendStore>((set, get) => ({
     try {
       await acceptFriendRequest(requestId);
       await get().loadFriends();
+      toast.success('Friend request accepted!');
     } catch (error) {
       console.error('Failed to accept friend request:', error);
       throw error;
@@ -75,6 +78,7 @@ export const useFriendStore = create<FriendStore>((set, get) => ({
     try {
       await removeFriend(friendId);
       await get().loadFriends();
+      toast.success('Friend removed.');
     } catch (error) {
       console.error('Failed to remove friend:', error);
       throw error;

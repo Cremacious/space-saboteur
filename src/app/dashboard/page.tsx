@@ -5,7 +5,7 @@ import FriendsList from './components/FriendsList';
 import { getAuthenticatedUser } from '@/lib/auth-server';
 import { redirect } from 'next/navigation';
 import { getGamesByUser } from '@/actions/game.action';
-import { getFriendsList } from '@/actions/friend.action';
+// import { getFriendsList } from '@/actions/friend.action';
 
 const DashboardPage = async () => {
   const { user, error } = await getAuthenticatedUser();
@@ -23,7 +23,7 @@ const DashboardPage = async () => {
         {user?.name}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-8">
-            <GameActions games={games} />
+            <GameActions userId={user!.id} games={games} />
             <GameStats />
           </div>
 

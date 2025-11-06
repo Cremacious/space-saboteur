@@ -4,9 +4,15 @@ import CreateGameButton from './CreateGameButton';
 import { GameType } from '@/lib/types/game.type';
 import JoinGameButton from './JoinGameButton';
 
-//TODO: Handle no games case styling
+//TODO: Handle no games case
 
-const GameActions = ({ games }: { games: GameType[] }) => {
+const GameActions = ({
+  games,
+  userId,
+}: {
+  games: GameType[];
+  userId: string;
+}) => {
   return (
     <div className="metallic-container">
       <h2 className="neon-header space-font">Game Lobby</h2>
@@ -31,22 +37,30 @@ const GameActions = ({ games }: { games: GameType[] }) => {
               No active games. Create or join a game to get started!
             </div>
           ) : null}
-          {games.map((game) => (
-            <li
-              key={game.id}
-              className="metallic-box flex flex-col md:flex-row items-center justify-between space-x-4"
-            >
-              <div className="flex md:flex-row flex-col items-center">
-                <div className="text-lg flex items-center space-font text-center">
-                  Game {game.code}
+          {games.map((game) => {
+            // Replace 'currentUserId' with the actual user ID from your auth/context
+            const currentUserId = userId; // TODO: get current user ID from context or props
+            const isPlayer = game.players.some(
+              (player) => player.id === currentUserId
+            );
+
+            return (
+              <li
+                key={game.id}
+                className="metallic-box flex flex-col md:flex-row items-center justify-between space-x-4"
+              >
+                <div className="flex md:flex-row flex-col items-center">
+                  <div className="text-lg flex items-center space-font text-center">
+                    Game {game.code}
+                  </div>
+                  <div className="md:ml-2 text-lg flex items-center space-font">
+                    (Paused, {game.players.length}/12 players)
+                  </div>
                 </div>
-                <div className="md:ml-2  text-lg flex items-center space-font">
-                  (Paused, 5/12 players)
-                </div>
-              </div>
-              <JoinGameButton code={game.code} />
-            </li>
-          ))}
+                <JoinGameButton code={game.code} isPlayer={isPlayer} />
+              </li>
+            );
+          })}
           {/* <li className="metallic-box flex flex-col md:flex-row items-center justify-between space-x-4">
             <div className="flex md:flex-row flex-col items-center">
               <div className="text-lg flex items-center space-font text-center">
