@@ -1,28 +1,24 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Minus, Plus } from 'lucide-react';
+import { RoleType } from '@/lib/types/role.type';
 
-type CharacterCard = {
-  id: number;
-  image: string;
-  name: string;
-  description: string;
-};
+//TODO: Replace placeholder image
 
 type RoleSelectionCardProps = {
-  card: CharacterCard;
-  selectedRoles: CharacterCard[];
-  handleRoleSelect: (role: CharacterCard) => void;
+  card: RoleType;
+  cardIsSelected: (card: RoleType) => boolean;
+  handleRoleSelect: (role: RoleType) => void;
 };
 
 const quantity = 1;
 
 const RoleSelectionCard = ({
   card,
-  selectedRoles,
+  cardIsSelected,
   handleRoleSelect,
 }: RoleSelectionCardProps) => {
-  const isSelected = selectedRoles.includes(card);
+  const isSelected = cardIsSelected(card);
   return (
     <div
       onClick={() => handleRoleSelect(card)}
@@ -39,7 +35,7 @@ const RoleSelectionCard = ({
 
       <div className="relative w-full h-64 bg-gray-900 border-b-2 border-cyan-400 flex items-center justify-center">
         <Image
-          src={card.image}
+          src={card.image ?? '/placeholder.png'}
           alt={card.name}
           fill
           className="object-contain"

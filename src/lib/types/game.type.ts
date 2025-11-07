@@ -1,4 +1,5 @@
 import { PlayerType } from './player.type';
+import { RoleType } from './role.type';
 
 export type GameType = {
   id: string;
@@ -15,4 +16,11 @@ export type GameType = {
     recipientId: string;
     status: string;
   }[];
+};
+
+export type GameSettingsType = {
+  selectedRoles: RoleType[];
+  roundTimer: number;
+  minPlayers?: number;
+  maxPlayers?: number;
 };

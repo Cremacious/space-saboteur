@@ -4,6 +4,7 @@ import {
   addPlayerToLobby,
   getLobbyByCode,
   removePlayerFromLobby,
+  updateGameSettings,
 } from '@/actions/lobby.action';
 import { create } from 'zustand';
 import { useRouter } from 'next/navigation';
@@ -148,8 +149,13 @@ export const useLobbyStore = create<LobbyStore>()(
         toast.error('Failed to send invite');
       }
     },
-    setSelectedRoles: (roles) => {
-      /* put logic here */
+    setSelectedRoles: async (roles) => {
+      set({ selectedRoles: roles });
+      const { roomCode, roundTimer } = get();
+      await updateGameSettings(roomCode, {
+        selectedRoles: roles,
+        roundTimer,
+      });
     },
     setRoundTimer: (minutes) => {
       set({ roundTimer: minutes * 60 });

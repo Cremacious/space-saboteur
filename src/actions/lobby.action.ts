@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { getAuthenticatedUser } from '@/lib/auth-server';
+import { GameSettingsType } from '@/lib/types/game.type';
 
 export async function createNewLobby() {
   try {
@@ -187,5 +188,21 @@ export async function removePlayerFromLobby(gameCode: string, userId: string) {
   } catch (error) {
     console.error('Error removing player from lobby:', error);
     throw new Error('Failed to remove player from lobby');
+  }
+}
+
+export async function updateGameSettings(
+  gameCode: string,
+  settings: GameSettingsType
+) {
+  try {
+    const game = await prisma.game.update({
+      where: { code: gameCode },
+      data: { settings },
+    });
+    return { success: true, game };
+  } catch (error) {
+    console.error('Error updating game settings:', error);
+    return { success: false, error: 'Failed to update game settings' };
   }
 }

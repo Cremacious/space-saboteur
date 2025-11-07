@@ -9,6 +9,7 @@ import { getAuthenticatedUser } from '@/lib/auth-server';
 import { redirect } from 'next/navigation';
 import { checkAuthorizedGameAccess } from '@/actions/lobby.action';
 import LobbyStateInitializer from './components/LobbyStateInitializer';
+import PlayerWaitingDisplay from './components/PlayerWaitingDisplay';
 
 //TODO: only show invite friends if user is the host
 
@@ -24,6 +25,8 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
   if (!currentGame) {
     redirect('/dashboard');
   }
+
+  const isHost = currentGame.game && currentGame.game.hostId === user!.id;
 
   return (
     <div className="min-h-screen flex items-center">
@@ -64,28 +67,34 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
               Game Settings
             </h2>
 
-            <div className="space-y-1 mt-4">
-              <div className="flex flex-row justify-evenly items-center ">
-                <div className="flex justify-center">
-                  {currentGame.game && <StartGameButton />}
-                </div>
-                {/* Timer */}
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="neon-text text-2xl text-center space-font">
-                      Round Timer
-                    </h3>
-                    <h3 className="text-white text-md text-center space-font">
-                      Determines how long each discussion round lasts.
-                    </h3>
+            {isHost ? (
+              <div className="space-y-1 mt-4">
+                <div className="flex flex-row justify-evenly items-center ">
+                  <div className="flex justify-center">
+                    {currentGame.game && <StartGameButton />}
                   </div>
-                  <TimeSelection />
+
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="neon-text text-2xl text-center space-font">
+                        Round Timer
+                      </h3>
+                      <h3 className="text-white text-md text-center space-font">
+                        Determines how long each discussion round lasts.
+                      </h3>
+                    </div>
+                    <TimeSelection />
+                  </div>
+                </div>
+                <div className="mt-8">
+                  <RoleSelection roles={ROLES} />
                 </div>
               </div>
-              <div className="mt-8">
-                <RoleSelection roles={ROLES} />
+            ) : (
+              <div>
+                <PlayerWaitingDisplay />
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

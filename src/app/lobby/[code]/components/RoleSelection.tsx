@@ -1,25 +1,25 @@
 'use client';
-import { useState } from 'react';
 import RoleSelectionCard from './RoleSelectionCard';
+import { useLobbyStore } from '@/stores/useLobbyStore';
 
 type RoleCard = {
   id: number;
-  image: string;
+  image?: string;
   name: string;
   description: string;
 };
 
-
-
 const RoleSelection = ({ roles }: { roles: RoleCard[] }) => {
-  const [selectedRoles, setSelectedRoles] = useState<RoleCard[]>([]);
+  const { selectedRoles, setSelectedRoles } = useLobbyStore();
 
   const handleRoleSelect = (role: RoleCard) => {
-    if (selectedRoles.includes(role)) {
-      setSelectedRoles(selectedRoles.filter((r) => r !== role));
+    let updatedRoles;
+    if (selectedRoles.some((r) => r.id === role.id)) {
+      updatedRoles = selectedRoles.filter((r) => r.id !== role.id);
     } else {
-      setSelectedRoles([...selectedRoles, role]);
+      updatedRoles = [...selectedRoles, role];
     }
+    setSelectedRoles(updatedRoles);
   };
 
   return (
@@ -33,7 +33,9 @@ const RoleSelection = ({ roles }: { roles: RoleCard[] }) => {
           <RoleSelectionCard
             key={card.id}
             card={card}
-            selectedRoles={selectedRoles}
+            cardIsSelected={(role) =>
+              selectedRoles.some((r) => r.id === role.id)
+            }
             handleRoleSelect={handleRoleSelect}
           />
         ))}
