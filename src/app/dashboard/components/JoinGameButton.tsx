@@ -1,15 +1,21 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { useLobbyStore } from '@/stores/useLobbyStore';
 
 const JoinGameButton = ({
   code,
   isPlayer,
+  userId,
+  userName,
 }: {
   code: string;
   isPlayer: boolean;
+  userId: string;
+  userName: string;
 }) => {
   const router = useRouter();
+
   const handleClick = () => {
     router.push(`/lobby/${code}`);
   };

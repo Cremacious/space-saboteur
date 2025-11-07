@@ -9,9 +9,11 @@ import JoinGameButton from './JoinGameButton';
 const GameActions = ({
   games,
   userId,
+  userName,
 }: {
   games: GameType[];
   userId: string;
+  userName: string;
 }) => {
   return (
     <div className="metallic-container">
@@ -38,11 +40,10 @@ const GameActions = ({
             </div>
           ) : null}
           {games.map((game) => {
-            // Replace 'currentUserId' with the actual user ID from your auth/context
-            const currentUserId = userId; // TODO: get current user ID from context or props
-            const isPlayer = game.players.some(
-              (player) => player.id === currentUserId
-            );
+            const currentUserId = userId;
+            const isPlayer =
+              game.players.some((player) => player.id === currentUserId) ||
+              game.hostId === currentUserId;
 
             return (
               <li
@@ -57,21 +58,15 @@ const GameActions = ({
                     (Paused, {game.players.length}/12 players)
                   </div>
                 </div>
-                <JoinGameButton code={game.code} isPlayer={isPlayer} />
+                <JoinGameButton
+                  userName={userName}
+                  userId={userId}
+                  code={game.code}
+                  isPlayer={isPlayer}
+                />
               </li>
             );
           })}
-          {/* <li className="metallic-box flex flex-col md:flex-row items-center justify-between space-x-4">
-            <div className="flex md:flex-row flex-col items-center">
-              <div className="text-lg flex items-center space-font text-center">
-                Invite #123456
-              </div>
-              <div className="md:ml-2  text-lg flex items-center space-font">
-                (Hosted By JohnDoe)
-              </div>
-            </div>
-            <Button className="md:mt-0 mt-4">Join</Button>
-          </li> */}
         </ul>
       </div>
     </div>

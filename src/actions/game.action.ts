@@ -1,5 +1,7 @@
 import prisma from '@/lib/prisma';
 // import { getAuthenticatedUser } from '@/lib/auth-server';
+import { GameType } from '@/lib/types/game.type';
+
 
 export async function getGamesByUser(userId: string) {
   try {
@@ -17,7 +19,7 @@ export async function getGamesByUser(userId: string) {
       },
     });
 
-    return games.map((game) => {
+    return games.map((game: GameType) => {
       const isPlayer = game.players.some((p) => p.userId === userId);
       const isInvited = game.invites.some(
         (invite) => invite.recipientId === userId && invite.status === 'pending'

@@ -1,4 +1,8 @@
-import { createNewLobby, inviteFriendToLobby } from '@/actions/lobby.action';
+import {
+  createNewLobby,
+  inviteFriendToLobby,
+  addPlayerToLobby,
+} from '@/actions/lobby.action';
 import { create } from 'zustand';
 import { useRouter } from 'next/navigation';
 import { devtools } from 'zustand/middleware';
@@ -25,8 +29,9 @@ type LobbyStore = {
   isCreatingGame: boolean;
 
   setPlayers: (players: Player[]) => void;
+  setInvitedFriends: (ids: string[]) => void;
   setRoomCode: (code: string) => void;
-  addPlayer: (player: Player) => void;
+  addPlayer: (playerId: string, userName: string) => void;
   removePlayer: (playerId: string) => void;
   inviteFriend: (friendId: string) => void;
   setSelectedRoles: (roles: RoleCard[]) => void;
@@ -92,7 +97,16 @@ export const useLobbyStore = create<LobbyStore>()(
     setPlayers: (players) => {
       set({ players });
     },
-    addPlayer: (player) => {},
+    setInvitedFriends: (ids) => set({ invitedFriends: ids }),
+    addPlayer: async (playerId, userName) => {
+      set((state) => ({
+        players: [
+          ...state.players,
+          { id: playerId, name: userName, isHost: false, isReady: false },
+        ],
+      }));
+      await addPlayerToLobby(get().roomCode, playerId);
+    },
     removePlayer: (playerId) => {
       /* put logic here */
     },

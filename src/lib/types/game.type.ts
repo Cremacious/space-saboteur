@@ -11,4 +11,8 @@ export type GameType = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   settings: any;
   players: PlayerType[];
+  invites: {
+    recipientId: string;
+    status: string;
+  }[];
 };

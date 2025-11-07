@@ -121,13 +121,44 @@ export async function inviteFriendToLobby(
     await prisma.gameInvite.create({
       data: {
         gameId: game.id,
-        senderId: game.hostId, 
+        senderId: game.hostId,
         recipientId: recipient.id,
-        status: 'pending', 
+        status: 'pending',
       },
     });
   } catch (error) {
     console.error('Error inviting player to lobby:', error);
     throw new Error('Failed to invite player to lobby');
+  }
+}
+
+export async function addPlayerToLobby(gameCode: string, userId: string) {
+  try {
+    const game = await prisma.game.findUnique({
+      where: { code: gameCode },
+    });
+    if (!game) {
+      throw new Error('Game not found');
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    await prisma.gamePlayer.create({
+      data: {
+        gameId: game.id,
+        userId: user.id,
+        name: user.name,
+        isReady: false,
+        eliminated: false,
+      },
+    });
+  } catch (error) {
+    console.error('Error adding player to lobby:', error);
+    throw new Error('Failed to add player to lobby');
   }
 }

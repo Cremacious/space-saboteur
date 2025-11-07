@@ -47,7 +47,10 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
             <div className="flex flex-col gap-8">
               <PlayerList />
 
-              <InviteFriends />
+              <InviteFriends
+                currentUserId={user!.id}
+                currentUserName={user!.name}
+              />
             </div>
           </div>
           {/* Game Settings */}
@@ -62,6 +65,7 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
                   {currentGame.game && (
                     <StartGameButton
                       currentUserId={user!.id}
+                      // currentUserName={user!.name}
                       game={currentGame.game}
                       code={code}
                     />

@@ -12,7 +12,7 @@ const StartGameButton = ({
   game: GameType;
   currentUserId: string;
 }) => {
-  const { setRoomCode, setPlayers } = useLobbyStore();
+  const { setRoomCode, setPlayers, setInvitedFriends } = useLobbyStore();
 
   useEffect(() => {
     if (code) setRoomCode(code);
@@ -27,8 +27,9 @@ const StartGameButton = ({
           }))
         );
       });
+      setInvitedFriends(game.invites.map((invite) => invite.recipientId));
     }
-  }, [code, game, setRoomCode, setPlayers, currentUserId]);
+  }, [code, game, setRoomCode, setPlayers, currentUserId, setInvitedFriends]);
 
   const handleStartGame = () => {};
 

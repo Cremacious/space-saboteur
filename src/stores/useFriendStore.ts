@@ -36,20 +36,17 @@ export const useFriendStore = create<FriendStore>((set, get) => ({
     }
   },
   sendFriendRequest: async (email: string) => {
-    set({ isLoading: true });
     try {
       await sendFriendRequest(email);
       await get().loadFriends();
       toast.success('Friend request sent!');
     } catch (error) {
+      toast.error('User with email not found.');
       console.error('Failed to send friend request:', error);
       throw error;
-    } finally {
-      set({ isLoading: false });
     }
   },
   acceptFriendRequest: async (requestId: string) => {
-    set({ isLoading: true });
     try {
       await acceptFriendRequest(requestId);
       await get().loadFriends();
@@ -57,24 +54,18 @@ export const useFriendStore = create<FriendStore>((set, get) => ({
     } catch (error) {
       console.error('Failed to accept friend request:', error);
       throw error;
-    } finally {
-      set({ isLoading: false });
     }
   },
   rejectFriendRequest: async (requestId: string) => {
-    set({ isLoading: true });
     try {
       await rejectFriendRequest(requestId);
       await get().loadFriends();
     } catch (error) {
       console.error('Failed to reject friend request:', error);
       throw error;
-    } finally {
-      set({ isLoading: false });
     }
   },
   removeFriend: async (friendId: string) => {
-    set({ isLoading: true });
     try {
       await removeFriend(friendId);
       await get().loadFriends();
@@ -82,8 +73,6 @@ export const useFriendStore = create<FriendStore>((set, get) => ({
     } catch (error) {
       console.error('Failed to remove friend:', error);
       throw error;
-    } finally {
-      set({ isLoading: false });
     }
   },
 }));
