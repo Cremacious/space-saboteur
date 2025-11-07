@@ -41,9 +41,20 @@ const GameActions = ({
           ) : null}
           {games.map((game) => {
             const currentUserId = userId;
+
             const isPlayer =
               game.players.some((player) => player.id === currentUserId) ||
               game.hostId === currentUserId;
+
+            const isInvited =
+              !isPlayer &&
+              game.invites.some(
+                (invite) =>
+                  invite.recipientId === currentUserId &&
+                  invite.status === 'pending'
+              );
+
+            // const isWaitingForPlayers = game.status === 'waiting';
 
             return (
               <li
@@ -52,10 +63,13 @@ const GameActions = ({
               >
                 <div className="flex md:flex-row flex-col items-center">
                   <div className="text-lg flex items-center space-font text-center">
-                    Game {game.code}
+                    {/* {isWaitingForPlayers ? 'Waiting' : `Rejoin Game: `}{' '} */}
+                    {game.code}
                   </div>
                   <div className="md:ml-2 text-lg flex items-center space-font">
-                    (Paused, {game.players.length}/12 players)
+                    (
+                    {game.status.charAt(0).toUpperCase() + game.status.slice(1)}
+                    , {game.players.length}/12 players)
                   </div>
                 </div>
                 <JoinGameButton
@@ -63,6 +77,7 @@ const GameActions = ({
                   userId={userId}
                   code={game.code}
                   isPlayer={isPlayer}
+                  isInvited={isInvited}
                 />
               </li>
             );

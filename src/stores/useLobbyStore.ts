@@ -40,6 +40,7 @@ type LobbyStore = {
   createGame: (
     router: ReturnType<typeof useRouter>
   ) => Promise<{ code: string; hostId: string } | undefined>;
+  reset: () => void;
 };
 
 export const useLobbyStore = create<LobbyStore>()(
@@ -82,6 +83,17 @@ export const useLobbyStore = create<LobbyStore>()(
         set({ isCreatingGame: false });
       }
     },
+    reset: () =>
+      set({
+        roomCode: '',
+        hostId: '',
+        players: [],
+        invitedFriends: [],
+        selectedRoles: [],
+        roundTimer: 180,
+        lobbyStatus: 'waiting',
+        isCreatingGame: false,
+      }),
     setRoomCode: (code) => {
       set({ roomCode: code });
     },
@@ -114,7 +126,7 @@ export const useLobbyStore = create<LobbyStore>()(
         toast.error('Failed to sync lobby');
       }
     },
-    addPlayer: async (playerId, userName) => {
+    addPlayer: async (playerId) => {
       if (!get().roomCode) return;
       await addPlayerToLobby(get().roomCode, playerId);
       await get().syncLobby(get().roomCode);
@@ -139,7 +151,6 @@ export const useLobbyStore = create<LobbyStore>()(
     setRoundTimer: (minutes) => {
       set({ roundTimer: minutes * 60 });
     },
-    setPlayerReady: (playerId, ready) => {},
     startGame: () => {
       /* put logic here */
     },

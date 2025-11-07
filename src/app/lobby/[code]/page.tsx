@@ -8,6 +8,8 @@ import StartGameButton from './components/StartGameButton';
 import { getAuthenticatedUser } from '@/lib/auth-server';
 import { redirect } from 'next/navigation';
 import { checkAuthorizedGameAccess } from '@/actions/lobby.action';
+// import LobbyStoreResetter from './components/LobbyStoreResetter';
+import LobbyStateInitializer from './components/LobbyStateInitializer';
 
 //TODO: only show invite friends if user is the host
 
@@ -26,6 +28,11 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
 
   return (
     <div className="min-h-screen flex items-center">
+      {/* <LobbyStoreResetter code={code} /> */}
+      {currentGame.game && (
+        <LobbyStateInitializer game={currentGame.game} code={code} />
+      )}
+
       <div className="mx-auto w-full">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-10 px-4 items-start">
           {/* Lobby */}
@@ -45,7 +52,7 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
             </div>
 
             <div className="flex flex-col gap-8">
-              <PlayerList />
+              <PlayerList currentUserId={user!.id} />
 
               <InviteFriends
                 currentUserId={user!.id}
@@ -62,14 +69,7 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
             <div className="space-y-1 mt-4">
               <div className="flex flex-row justify-evenly items-center ">
                 <div className="flex justify-center">
-                  {currentGame.game && (
-                    <StartGameButton
-                      // currentUserId={user!.id}
-                      // currentUserName={user!.name}
-                      game={currentGame.game}
-                      code={code}
-                    />
-                  )}
+                  {currentGame.game && <StartGameButton />}
                 </div>
                 {/* Timer */}
                 <div className="space-y-4">
