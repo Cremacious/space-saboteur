@@ -8,7 +8,6 @@ import StartGameButton from './components/StartGameButton';
 import { getAuthenticatedUser } from '@/lib/auth-server';
 import { redirect } from 'next/navigation';
 import { checkAuthorizedGameAccess } from '@/actions/lobby.action';
-// import LobbyStoreResetter from './components/LobbyStoreResetter';
 import LobbyStateInitializer from './components/LobbyStateInitializer';
 
 //TODO: only show invite friends if user is the host
@@ -28,7 +27,6 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
 
   return (
     <div className="min-h-screen flex items-center">
-      {/* <LobbyStoreResetter code={code} /> */}
       {currentGame.game && (
         <LobbyStateInitializer game={currentGame.game} code={code} />
       )}

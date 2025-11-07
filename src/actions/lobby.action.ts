@@ -167,3 +167,25 @@ export async function addPlayerToLobby(gameCode: string, userId: string) {
     throw new Error('Failed to add player to lobby');
   }
 }
+
+export async function removePlayerFromLobby(gameCode: string, userId: string) {
+  try {
+    const game = await prisma.game.findUnique({
+      where: { code: gameCode },
+    });
+    if (!game) {
+      throw new Error('Game not found');
+    }
+
+    await prisma.gamePlayer.deleteMany({
+      where: { gameId: game.id, userId },
+    });
+
+    await prisma.gameInvite.deleteMany({
+      where: { gameId: game.id, recipientId: userId, status: 'pending' },
+    });
+  } catch (error) {
+    console.error('Error removing player from lobby:', error);
+    throw new Error('Failed to remove player from lobby');
+  }
+}

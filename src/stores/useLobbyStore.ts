@@ -3,6 +3,7 @@ import {
   inviteFriendToLobby,
   addPlayerToLobby,
   getLobbyByCode,
+  removePlayerFromLobby,
 } from '@/actions/lobby.action';
 import { create } from 'zustand';
 import { useRouter } from 'next/navigation';
@@ -132,7 +133,9 @@ export const useLobbyStore = create<LobbyStore>()(
       await get().syncLobby(get().roomCode);
     },
     removePlayer: (playerId) => {
-      /* put logic here */
+      if (!get().roomCode) return;
+      removePlayerFromLobby(get().roomCode, playerId);
+      get().syncLobby(get().roomCode);
     },
     inviteFriend: async (friendId: string) => {
       if (!get().roomCode) return;
