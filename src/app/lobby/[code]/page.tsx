@@ -64,7 +64,7 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
                 <div className="flex justify-center">
                   {currentGame.game && (
                     <StartGameButton
-                      currentUserId={user!.id}
+                      // currentUserId={user!.id}
                       // currentUserName={user!.name}
                       game={currentGame.game}
                       code={code}

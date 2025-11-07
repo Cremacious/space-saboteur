@@ -148,6 +148,11 @@ export async function addPlayerToLobby(gameCode: string, userId: string) {
       throw new Error('User not found');
     }
 
+    const existing = await prisma.gamePlayer.findFirst({
+      where: { gameId: game.id, userId: user.id },
+    });
+    if (existing) return;
+
     await prisma.gamePlayer.create({
       data: {
         gameId: game.id,

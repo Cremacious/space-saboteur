@@ -1,6 +1,5 @@
 'use client';
 import { Button } from '@/components/ui/button';
-// import { FriendType } from '@/lib/types/friend.type';
 import { useFriendStore } from '@/stores/useFriendStore';
 import { useLobbyStore } from '@/stores/useLobbyStore';
 import { Orbit } from 'lucide-react';
@@ -14,12 +13,25 @@ const InviteFriends = ({
   currentUserName: string;
 }) => {
   const { friends, loadFriends, isLoading } = useFriendStore();
-  const { inviteFriend, invitedFriends, hostId, players, addPlayer } =
-    useLobbyStore();
+  const {
+    inviteFriend,
+    invitedFriends,
+    hostId,
+    players,
+    addPlayer,
+    syncLobby,
+    roomCode,
+  } = useLobbyStore();
 
   useEffect(() => {
     loadFriends();
   }, [loadFriends]);
+
+  useEffect(() => {
+    if (roomCode) {
+      syncLobby(roomCode);
+    }
+  }, [roomCode, syncLobby]);
 
   useEffect(() => {
     if (

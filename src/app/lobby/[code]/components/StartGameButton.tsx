@@ -3,33 +3,25 @@ import { useLobbyStore } from '@/stores/useLobbyStore';
 import { useEffect } from 'react';
 import { GameType } from '@/lib/types/game.type';
 
-const StartGameButton = ({
-  code,
-  game,
-  currentUserId,
-}: {
-  code: string;
-  game: GameType;
-  currentUserId: string;
-}) => {
-  const { setRoomCode, setPlayers, setInvitedFriends } = useLobbyStore();
+const StartGameButton = ({ code, game }: { code: string; game: GameType }) => {
+  const { setRoomCode, setPlayers, setInvitedFriends, setHostId } =
+    useLobbyStore();
 
   useEffect(() => {
     if (code) setRoomCode(code);
     if (game) {
-      game.players.forEach(() => {
-        setPlayers(
-          game.players.map((p) => ({
-            id: p.id,
-            name: p.name,
-            isHost: currentUserId === game.hostId,
-            isReady: !!p.isReady,
-          }))
-        );
-      });
+      setHostId(game.hostId);
+      setPlayers(
+        game.players.map((p) => ({
+          id: p.userId,
+          name: p.name,
+          isHost: p.userId === game.hostId,
+          isReady: !!p.isReady,
+        }))
+      );
       setInvitedFriends(game.invites.map((invite) => invite.recipientId));
     }
-  }, [code, game, setRoomCode, setPlayers, currentUserId, setInvitedFriends]);
+  }, [code, game, setRoomCode, setPlayers, setInvitedFriends, setHostId]);
 
   const handleStartGame = () => {};
 

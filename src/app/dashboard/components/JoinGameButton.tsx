@@ -6,8 +6,6 @@ import { useLobbyStore } from '@/stores/useLobbyStore';
 const JoinGameButton = ({
   code,
   isPlayer,
-  userId,
-  userName,
 }: {
   code: string;
   isPlayer: boolean;
