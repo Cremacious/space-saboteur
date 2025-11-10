@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
+import AuthSocketWrapper from '@/components/socket/AuthSocketWrapper';
+// import { SessionProvider } from '@/components/socket/SessionProvider';
 
 export const metadata: Metadata = {
   title: 'Space Saboteur',
@@ -15,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased bg-linear-to-br from-slate-900 via-gray-700 to-gray-950">
-        {children}
+        {/* <SessionProvider> */}
+          <AuthSocketWrapper>{children}</AuthSocketWrapper>
+        {/* </SessionProvider> */}
         <Toaster />
       </body>
     </html>

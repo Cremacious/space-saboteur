@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { useOnlineStore } from '@/stores/useOnlineStore';
 
 //TODO: Style no friends div
 
@@ -55,13 +56,17 @@ const FriendsList = () => {
     setRemovingFriend(false);
   };
 
+  const { onlineFriends } = useOnlineStore();
+  const onlineCount = friends.filter((f) =>
+    onlineFriends.includes(f.id)
+  ).length;
+
   return (
     <div className="metallic-container">
       <h2 className="neon-header space-font">Friends</h2>
       <div className="space-y-8">
         <div className="space-y-4">
           <AddFriendInput />
-
           {pendingRequests.length > 0 && (
             <div className="mb-2 space-y-4">
               <Button onClick={handleViewRequests} className="w-full">
@@ -113,7 +118,7 @@ const FriendsList = () => {
 
         <div>
           <h3 className="font-semibold mb-3 neon-text space-font">
-            Online Friends ( 0/{friends.length} )
+            Online Friends ( {onlineCount}/{friends.length} )
           </h3>
           {isLoading ? (
             <div className="flex flex-col justify-center items-center h-64 ">
@@ -126,6 +131,34 @@ const FriendsList = () => {
             </div>
           ) : (
             <ul className="space-y-3">
+              {/* Test */}
+              {friends.map((friend) => (
+                <li
+                  key={friend.id}
+                  className="metallic-list-item flex items-center justify-between "
+                >
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-2 h-2 rounded-full inline-block ${
+                        onlineFriends.includes(friend.id)
+                          ? 'bg-green-400'
+                          : 'bg-gray-400'
+                      }`}
+                    />
+                    <span className="space-font text-lg">
+                      {friend.name} online?
+                    </span>
+                  </div>
+                </li>
+              ))}
+              {/* {friends.map((friend) => (
+                <div key={friend.id}>
+                  {friend.name}
+                  {onlineFriends.includes(friend.id) && (
+                    <span className="text-green-400 ml-2">● isOnline</span>
+                  )}
+                </div>
+              ))} */}
               {friends.map((friend) => (
                 <li
                   key={friend.id}
