@@ -57,6 +57,7 @@ const FriendsList = () => {
   };
 
   const { onlineFriends } = useOnlineStore();
+  console.log('Online Friendssss:', onlineFriends);
   const onlineCount = friends.filter((f) =>
     onlineFriends.includes(f.id)
   ).length;
@@ -131,7 +132,6 @@ const FriendsList = () => {
             </div>
           ) : (
             <ul className="space-y-3">
-              {/* Test */}
               {friends.map((friend) => (
                 <li
                   key={friend.id}
@@ -145,27 +145,6 @@ const FriendsList = () => {
                           : 'bg-gray-400'
                       }`}
                     />
-                    <span className="space-font text-lg">
-                      {friend.name} online?
-                    </span>
-                  </div>
-                </li>
-              ))}
-              {/* {friends.map((friend) => (
-                <div key={friend.id}>
-                  {friend.name}
-                  {onlineFriends.includes(friend.id) && (
-                    <span className="text-green-400 ml-2">● isOnline</span>
-                  )}
-                </div>
-              ))} */}
-              {friends.map((friend) => (
-                <li
-                  key={friend.id}
-                  className="metallic-list-item flex items-center justify-between "
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2  rounded-full inline-block" />
                     <span className="space-font text-lg">{friend.name}</span>
                   </div>
                   <Dialog open={open} onOpenChange={setOpen}>

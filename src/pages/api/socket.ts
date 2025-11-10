@@ -1,6 +1,5 @@
 import { Server } from 'socket.io';
 import type { NextApiRequest } from 'next';
-// import type { NextApiResponseServerIO } from '@/types/next';
 import type { NextApiResponseServerIO } from '@/lib/types/next';
 
 export default function handler(
@@ -9,25 +8,28 @@ export default function handler(
 ) {
   if (!res.socket.server.io) {
     const io = new Server(res.socket.server, {
-      path: '/api/socket_io',
+      path: '/api/socket',
     });
 
-    // Track online users in memory (for demo; use Redis for production)
     const onlineUsers = new Set<string>();
 
     io.on('connection', (socket) => {
+      console.log('New socket connection:', socket.id);
+
       socket.on('user-online', (userId: string) => {
+        console.log('User online:', userId);
         onlineUsers.add(userId);
         io.emit('online-users', Array.from(onlineUsers));
       });
 
       socket.on('user-offline', (userId: string) => {
+        console.log('User offline:', userId);
         onlineUsers.delete(userId);
         io.emit('online-users', Array.from(onlineUsers));
       });
 
       socket.on('disconnect', () => {
-        // Optionally handle disconnects
+        console.log('Socket disconnected:', socket.id);
       });
     });
 
