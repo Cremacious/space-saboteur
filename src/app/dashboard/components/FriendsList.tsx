@@ -57,7 +57,6 @@ const FriendsList = () => {
   };
 
   const { onlineFriends } = useOnlineStore();
-  console.log('Online Friendssss:', onlineFriends);
   const onlineCount = friends.filter((f) =>
     onlineFriends.includes(f.id)
   ).length;

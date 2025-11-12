@@ -6,10 +6,12 @@ import {
   removePlayerFromLobby,
   updateGameSettings,
 } from '@/actions/lobby.action';
+import { GameSettingsType } from '@/lib/types/game.type';
 import { create } from 'zustand';
 import { useRouter } from 'next/navigation';
 import { devtools } from 'zustand/middleware';
 import { toast } from 'sonner';
+import io from 'socket.io-client';
 
 type Player = { id: string; name: string; isHost: boolean; isReady: boolean };
 type RoleCard = { id: number; name: string; description: string };
@@ -26,6 +28,11 @@ type LobbyStore = {
   maxPlayers: number;
   lobbyStatus: 'waiting' | 'ready' | 'started';
   isCreatingGame: boolean;
+
+  socket: ReturnType<typeof io> | null;
+  isHost: boolean;
+  connectToLobbySocket: (lobbyCode: string, isHost: boolean) => void;
+  disconnectLobbySocket: () => void;
 
   setPlayers: (players: Player[]) => void;
   setInvitedFriends: (ids: string[]) => void;
@@ -57,6 +64,33 @@ export const useLobbyStore = create<LobbyStore>()(
     maxPlayers: 12,
     lobbyStatus: 'waiting',
     isCreatingGame: false,
+    socket: null,
+    isHost: false,
+
+    connectToLobbySocket: (lobbyCode: string, isHost: boolean) => {
+      if (get().socket) return;
+      console.log('Connecting to socket', lobbyCode, isHost);
+      const socket = io('/', { path: '/api/socket' });
+      set({ socket, isHost });
+      socket.on('connect', () => {
+        console.log('Socket connected:', socket.id, 'joining lobby', lobbyCode);
+        socket.emit('join-lobby', lobbyCode);
+      });
+      console.log('Registering lobby-settings-updated handler');
+      socket.on('lobby-settings-updated', (settings: GameSettingsType) => {
+        console.log('Received lobby-settings-updated', settings);
+        if (settings.selectedRoles)
+          set({ selectedRoles: settings.selectedRoles });
+        if (settings.roundTimer) set({ roundTimer: settings.roundTimer });
+      });
+    },
+    disconnectLobbySocket: () => {
+      const socket = get().socket;
+      if (socket) {
+        socket.disconnect();
+        set({ socket: null });
+      }
+    },
 
     createGame: async (
       router: ReturnType<typeof useRouter>
@@ -85,7 +119,8 @@ export const useLobbyStore = create<LobbyStore>()(
         set({ isCreatingGame: false });
       }
     },
-    reset: () =>
+    reset: () => {
+      get().disconnectLobbySocket();
       set({
         roomCode: '',
         hostId: '',
@@ -95,7 +130,10 @@ export const useLobbyStore = create<LobbyStore>()(
         roundTimer: 180,
         lobbyStatus: 'waiting',
         isCreatingGame: false,
-      }),
+        socket: null,
+        isHost: false,
+      });
+    },
     setRoomCode: (code) => {
       set({ roomCode: code });
     },
@@ -122,6 +160,9 @@ export const useLobbyStore = create<LobbyStore>()(
           invitedFriends: game.invites.map(
             (invite: { recipientId: string }) => invite.recipientId
           ),
+          selectedRoles:
+            (game.settings as GameSettingsType)?.selectedRoles || [],
+          roundTimer: (game.settings as GameSettingsType)?.roundTimer || 180,
         });
       } catch (error) {
         console.error('Failed to sync lobby:', error);
@@ -152,16 +193,50 @@ export const useLobbyStore = create<LobbyStore>()(
     setSelectedRoles: async (roles) => {
       set({ selectedRoles: roles });
       const { roomCode, roundTimer } = get();
-      await updateGameSettings(roomCode, {
-        selectedRoles: roles,
-        roundTimer,
-      });
+      try {
+        await updateGameSettings(roomCode, {
+          selectedRoles: roles,
+          roundTimer,
+        });
+      } catch (error) {
+        console.error('Failed to update DB', error);
+      }
+      const { socket, isHost } = get();
+      if (isHost && socket && roomCode) {
+        console.log('Emitting update-lobby-settings from setSelectedRoles', {
+          lobbyCode: roomCode,
+          settings: { selectedRoles: roles, roundTimer },
+        });
+        socket.emit('update-lobby-settings', {
+          lobbyCode: roomCode,
+          settings: { selectedRoles: roles, roundTimer },
+        });
+      }
     },
-    setRoundTimer: (minutes) => {
-      set({ roundTimer: minutes * 60 });
+    setRoundTimer: async (minutes) => {
+      const roundTimer = minutes * 60;
+      set({ roundTimer });
+      const { roomCode, selectedRoles } = get();
+      try {
+        await updateGameSettings(roomCode, {
+          selectedRoles,
+          roundTimer,
+        });
+      } catch (error) {
+        console.error('Failed to update DB', error);
+      }
+      const { socket, isHost } = get();
+      if (isHost && socket && roomCode) {
+        console.log('Emitting update-lobby-settings from setRoundTimer', {
+          lobbyCode: roomCode,
+          settings: { selectedRoles, roundTimer },
+        });
+        socket.emit('update-lobby-settings', {
+          lobbyCode: roomCode,
+          settings: { selectedRoles, roundTimer },
+        });
+      }
     },
-    startGame: () => {
-      /* put logic here */
-    },
+    startGame: () => {},
   }))
 );

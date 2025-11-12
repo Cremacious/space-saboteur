@@ -31,6 +31,28 @@ export default function handler(
       socket.on('disconnect', () => {
         console.log('Socket disconnected:', socket.id);
       });
+
+      socket.on('join-lobby', (lobbyCode) => {
+        console.log('join-lobby', lobbyCode);
+        socket.join(lobbyCode);
+      });
+
+      socket.on('update-lobby-settings', ({ lobbyCode, settings }) => {
+        console.log(
+          'Emitting lobby-settings-updated',
+          settings,
+          'to',
+          lobbyCode
+        );
+        io.in(lobbyCode)
+          .allSockets()
+          .then((sockets) => {
+            console.log('Sockets in room', lobbyCode, Array.from(sockets));
+          });
+        io.to(lobbyCode).emit('lobby-settings-updated', settings);
+        console.log('Being sent...');
+        io.emit('lobby-settings-updated', settings);
+      });
     });
 
     res.socket.server.io = io;

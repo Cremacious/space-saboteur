@@ -10,17 +10,17 @@ export default function SocketProvider({ userId }: { userId: string }) {
     const socket = io('/', { path: '/api/socket' });
 
     socket.on('connect', () => {
-      console.log('Socket connected:', socket.id);
+      // console.log('Socket connected:', socket.id);
       socket.emit('user-online', userId);
     });
 
     socket.on('online-users', (ids: string[]) => {
-      console.log('Received online users:', ids);
+      // console.log('Received online users:', ids);
       setOnlineFriends(ids);
     });
 
     socket.on('disconnect', () => {
-      console.log('Socket disconnected');
+      // console.log('Socket disconnected');
       socket.emit('user-offline', userId);
     });
 

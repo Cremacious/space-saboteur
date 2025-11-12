@@ -7,12 +7,20 @@ import { GameType } from '@/lib/types/game.type';
 export default function LobbyStateInitializer({
   game,
   code,
+  userId,
 }: {
   game: GameType;
   code: string;
+  userId: string;
 }) {
-  const { reset, setRoomCode, setPlayers, setInvitedFriends, setHostId } =
-    useLobbyStore();
+  const {
+    reset,
+    setRoomCode,
+    setPlayers,
+    setInvitedFriends,
+    setHostId,
+    connectToLobbySocket,
+  } = useLobbyStore();
 
   useEffect(() => {
     reset();
@@ -32,15 +40,19 @@ export default function LobbyStateInitializer({
           (invite: { recipientId: string }) => invite.recipientId
         )
       );
+      const isHost = game.hostId === userId;
+      connectToLobbySocket(code, isHost);
     }
   }, [
     game,
     code,
+    userId,
     reset,
     setRoomCode,
     setPlayers,
     setInvitedFriends,
     setHostId,
+    connectToLobbySocket,
   ]);
 
   return null;

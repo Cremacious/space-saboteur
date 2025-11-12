@@ -31,7 +31,11 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
   return (
     <div className="min-h-screen flex items-center">
       {currentGame.game && (
-        <LobbyStateInitializer game={currentGame.game} code={code} />
+        <LobbyStateInitializer
+          game={currentGame.game}
+          code={code}
+          userId={user!.id}
+        />
       )}
 
       <div className="mx-auto w-full">

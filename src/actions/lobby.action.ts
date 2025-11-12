@@ -92,7 +92,7 @@ export async function checkAuthorizedGameAccess(code: string, userId: string) {
     if (!isHost && !isPlayer && !isInvited) {
       return { success: false, game: null };
     }
-    console.log(userId);
+
     return { success: true, game };
   } catch (error) {
     console.error('Error checking authorized game access:', error);
