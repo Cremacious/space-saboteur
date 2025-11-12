@@ -205,73 +205,73 @@ export const useLobbyStore = create<LobbyStore>()(
     setSelectedRoles: (role, action) => {
       set((state) => {
         const existing = state.selectedRoles.find((r) => r.id === role.id);
+        let newSelectedRoles = state.selectedRoles;
         if (role.id === 1 || role.id === 9) {
           if (action === 'toggle') {
             if (existing) {
-              return {
-                selectedRoles: state.selectedRoles.filter(
-                  (r) => r.id !== role.id
-                ),
-              };
+              newSelectedRoles = state.selectedRoles.filter(
+                (r) => r.id !== role.id
+              );
             } else {
-              return {
-                selectedRoles: [
-                  ...state.selectedRoles,
-                  { ...role, quantity: 1 },
-                ],
-              };
+              newSelectedRoles = [
+                ...state.selectedRoles,
+                { ...role, quantity: 1 },
+              ];
             }
-          }
-          if (existing) {
+          } else if (existing) {
             const newQty =
               action === 'add' ? existing.quantity + 1 : existing.quantity - 1;
             if (newQty < 1) {
-              return {
-                selectedRoles: state.selectedRoles.filter(
-                  (r) => r.id !== role.id
-                ),
-              };
-            }
-            return {
-              selectedRoles: state.selectedRoles.map((r) =>
+              newSelectedRoles = state.selectedRoles.filter(
+                (r) => r.id !== role.id
+              );
+            } else {
+              newSelectedRoles = state.selectedRoles.map((r) =>
                 r.id === role.id ? { ...r, quantity: newQty } : r
-              ),
-            };
+              );
+            }
           } else if (action === 'add') {
-            return {
-              selectedRoles: [...state.selectedRoles, { ...role, quantity: 1 }],
-            };
+            newSelectedRoles = [
+              ...state.selectedRoles,
+              { ...role, quantity: 1 },
+            ];
           }
         } else {
           if (action === 'toggle') {
             if (existing) {
-              return {
-                selectedRoles: state.selectedRoles.filter(
-                  (r) => r.id !== role.id
-                ),
-              };
-            } else {
-              return {
-                selectedRoles: [
-                  ...state.selectedRoles,
-                  { ...role, quantity: 1 },
-                ],
-              };
-            }
-          }
-          if (existing) {
-            return {
-              selectedRoles: state.selectedRoles.filter(
+              newSelectedRoles = state.selectedRoles.filter(
                 (r) => r.id !== role.id
-              ),
-            };
+              );
+            } else {
+              newSelectedRoles = [
+                ...state.selectedRoles,
+                { ...role, quantity: 1 },
+              ];
+            }
+          } else if (existing) {
+            newSelectedRoles = state.selectedRoles.filter(
+              (r) => r.id !== role.id
+            );
           } else if (action === 'add') {
-            return {
-              selectedRoles: [...state.selectedRoles, { ...role, quantity: 1 }],
-            };
+            newSelectedRoles = [
+              ...state.selectedRoles,
+              { ...role, quantity: 1 },
+            ];
           }
         }
-        return {};
+        // Emit socket event if host
+        const { socket, isHost, roomCode, roundTimer } = get();
+        if (isHost && socket && roomCode) {
+          console.log('Emitting update-lobby-settings from setSelectedRoles', {
+            lobbyCode: roomCode,
+            settings: { selectedRoles: newSelectedRoles, roundTimer },
+          });
+          socket.emit('update-lobby-settings', {
+            lobbyCode: roomCode,
+            settings: { selectedRoles: newSelectedRoles, roundTimer },
+          });
+        }
+        return { selectedRoles: newSelectedRoles };
       });
     },
     setRoundTimer: async (minutes) => {
@@ -306,22 +306,8 @@ export const useLobbyStore = create<LobbyStore>()(
       }));
     },
     startGame: () => {
-      const { hostId, players, selectedRoles } = get();
-      // const userId = ... // get current user id from auth/session
-      const requiredRoles = players.length + 3;
-      const selectedCount = selectedRoles.reduce(
-        (sum, r) => sum + r.quantity,
-        0
-      );
-      // if (userId !== hostId) {
-      //   toast.error('Only the host can start the game.');
-      //   return;
-      // }
-      if (selectedCount < requiredRoles) {
-        toast.error('Not enough roles selected.');
-        return;
-      }
-      // ...start game logic
+      //TODO: Players have to be online to start game
+      console.log('Add functionality later');
     },
   }))
 );

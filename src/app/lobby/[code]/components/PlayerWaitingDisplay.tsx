@@ -47,7 +47,7 @@ const PlayerWaitingDisplay = () => {
                       className="w-6 h-6 rounded-full"
                     />
                   )} */}
-                  <span className="space-font">{role.name}</span>  {role.quantity}
+                  <span className="space-font">{role.name} {role.quantity > 1 ? `(${role.quantity})` : ''}</span>
                 </Badge>
               ))
             )}
