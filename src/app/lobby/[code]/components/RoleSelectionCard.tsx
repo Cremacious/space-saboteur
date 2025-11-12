@@ -7,16 +7,22 @@ import { RoleType } from '@/lib/types/role.type';
 
 type RoleSelectionCardProps = {
   card: RoleType;
+  quantity: number;
   cardIsSelected: (card: RoleType) => boolean;
   handleRoleSelect: (role: RoleType) => void;
+  onAdd: () => void;
+  onRemove: () => void;
 };
 
-const quantity = 1;
+// const quantity = 1;
 
 const RoleSelectionCard = ({
   card,
   cardIsSelected,
   handleRoleSelect,
+  onAdd,
+  onRemove,
+  quantity,
 }: RoleSelectionCardProps) => {
   const isSelected = cardIsSelected(card);
   return (
@@ -55,11 +61,23 @@ const RoleSelectionCard = ({
             </span>
             {(card.id === 1 || card.id === 9) && (
               <div className="flex flex-row gap-4 justify-center items-center mt-1 mb-0.5">
-                <Button className="flex items-center justify-center bg-white px-2 py-1">
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemove();
+                  }}
+                  className="flex items-center justify-center bg-white px-2 py-1"
+                >
                   <Minus className="text-black" />
                 </Button>
                 <div className="text-2xl text-white space-font">{quantity}</div>
-                <Button className="flex items-center justify-center bg-white px-2 py-1">
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAdd();
+                  }}
+                  className="flex items-center justify-center bg-white px-2 py-1"
+                >
                   <Plus className="text-black" />
                 </Button>
               </div>

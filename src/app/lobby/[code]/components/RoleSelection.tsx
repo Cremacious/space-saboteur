@@ -10,36 +10,53 @@ type RoleCard = {
 };
 
 const RoleSelection = ({ roles }: { roles: RoleCard[] }) => {
-  const { selectedRoles, setSelectedRoles } = useLobbyStore();
+  const { selectedRoles, setSelectedRoles, players, hostId } = useLobbyStore();
+  const userId = ''; // get current user id from auth/session
+
+  const requiredRoles = players.length + 3;
+  const selectedCount = selectedRoles.reduce((sum, r) => sum + r.quantity, 0);
+
+  const handleAdd = (role: RoleCard) => setSelectedRoles(role, 'add');
+
+  const handleRemove = (role: RoleCard) => setSelectedRoles(role, 'remove');
 
   const handleRoleSelect = (role: RoleCard) => {
-    let updatedRoles;
-    if (selectedRoles.some((r) => r.id === role.id)) {
-      updatedRoles = selectedRoles.filter((r) => r.id !== role.id);
-    } else {
-      updatedRoles = [...selectedRoles, role];
-    }
-    setSelectedRoles(updatedRoles);
+    setSelectedRoles(role, 'toggle');
   };
 
+  const cardIsSelected = (card: RoleCard) =>
+    !!selectedRoles.find((r) => r.id === card.id);
+
   return (
-    <div className=" mt-8">
+    <div className="mt-8">
       <h3 className="neon-text text-2xl text-center space-font">
-        Select Role Cards (1/6)
+        Select Role Cards ({selectedCount}/{requiredRoles})
       </h3>
       <div className="mt-6"></div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-        {roles.map((card) => (
-          <RoleSelectionCard
-            key={card.id}
-            card={card}
-            cardIsSelected={(role) =>
-              selectedRoles.some((r) => r.id === role.id)
-            }
-            handleRoleSelect={handleRoleSelect}
-          />
-        ))}
+        {roles.map((card) => {
+          const selected = selectedRoles.find((r) => r.id === card.id);
+          return (
+            <RoleSelectionCard
+              key={card.id}
+              card={card}
+              quantity={selected?.quantity ?? 0}
+              onAdd={() => handleAdd(card)}
+              onRemove={() => handleRemove(card)}
+              handleRoleSelect={() => handleRoleSelect(card)}
+              cardIsSelected={cardIsSelected}
+            />
+          );
+        })}
       </div>
+      {userId === hostId && (
+        <button
+          disabled={selectedCount < requiredRoles}
+          onClick={() => useLobbyStore.getState().startGame()}
+        >
+          Start Game
+        </button>
+      )}
     </div>
   );
 };

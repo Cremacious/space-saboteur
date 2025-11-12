@@ -16,13 +16,14 @@ import io from 'socket.io-client';
 type Player = { id: string; name: string; isHost: boolean; isReady: boolean };
 type RoleCard = { id: number; name: string; description: string };
 type BackendPlayer = { userId: string; isReady: boolean; name: string };
+type SelectedRole = RoleCard & { quantity: number };
 
 type LobbyStore = {
   roomCode: string;
   hostId: string;
   players: Player[];
   invitedFriends: string[];
-  selectedRoles: RoleCard[];
+  selectedRoles: SelectedRole[];
   roundTimer: number;
   minPlayers: number;
   maxPlayers: number;
@@ -42,7 +43,10 @@ type LobbyStore = {
   addPlayer: (playerId: string, userName: string) => Promise<void>;
   removePlayer: (playerId: string) => void;
   inviteFriend: (friendId: string) => Promise<void>;
-  setSelectedRoles: (roles: RoleCard[]) => void;
+  setSelectedRoles: (
+    role: RoleCard,
+    action: 'add' | 'remove' | 'toggle'
+  ) => void;
   setRoundTimer: (minutes: number) => void;
   setPlayerReady: (playerId: string, ready: boolean) => void;
   startGame: () => void;
@@ -80,7 +84,12 @@ export const useLobbyStore = create<LobbyStore>()(
       socket.on('lobby-settings-updated', (settings: GameSettingsType) => {
         console.log('Received lobby-settings-updated', settings);
         if (settings.selectedRoles)
-          set({ selectedRoles: settings.selectedRoles });
+          set({
+            selectedRoles: settings.selectedRoles.map((role) => ({
+              ...role,
+              quantity: (role as SelectedRole).quantity || 1,
+            })),
+          });
         if (settings.roundTimer) set({ roundTimer: settings.roundTimer });
       });
     },
@@ -161,7 +170,10 @@ export const useLobbyStore = create<LobbyStore>()(
             (invite: { recipientId: string }) => invite.recipientId
           ),
           selectedRoles:
-            (game.settings as GameSettingsType)?.selectedRoles || [],
+            (game.settings as GameSettingsType)?.selectedRoles?.map((role) => ({
+              ...role,
+              quantity: (role as SelectedRole).quantity || 1,
+            })) || [],
           roundTimer: (game.settings as GameSettingsType)?.roundTimer || 180,
         });
       } catch (error) {
@@ -190,28 +202,77 @@ export const useLobbyStore = create<LobbyStore>()(
         toast.error('Failed to send invite');
       }
     },
-    setSelectedRoles: async (roles) => {
-      set({ selectedRoles: roles });
-      const { roomCode, roundTimer } = get();
-      try {
-        await updateGameSettings(roomCode, {
-          selectedRoles: roles,
-          roundTimer,
-        });
-      } catch (error) {
-        console.error('Failed to update DB', error);
-      }
-      const { socket, isHost } = get();
-      if (isHost && socket && roomCode) {
-        console.log('Emitting update-lobby-settings from setSelectedRoles', {
-          lobbyCode: roomCode,
-          settings: { selectedRoles: roles, roundTimer },
-        });
-        socket.emit('update-lobby-settings', {
-          lobbyCode: roomCode,
-          settings: { selectedRoles: roles, roundTimer },
-        });
-      }
+    setSelectedRoles: (role, action) => {
+      set((state) => {
+        const existing = state.selectedRoles.find((r) => r.id === role.id);
+        if (role.id === 1 || role.id === 9) {
+          if (action === 'toggle') {
+            if (existing) {
+              return {
+                selectedRoles: state.selectedRoles.filter(
+                  (r) => r.id !== role.id
+                ),
+              };
+            } else {
+              return {
+                selectedRoles: [
+                  ...state.selectedRoles,
+                  { ...role, quantity: 1 },
+                ],
+              };
+            }
+          }
+          if (existing) {
+            const newQty =
+              action === 'add' ? existing.quantity + 1 : existing.quantity - 1;
+            if (newQty < 1) {
+              return {
+                selectedRoles: state.selectedRoles.filter(
+                  (r) => r.id !== role.id
+                ),
+              };
+            }
+            return {
+              selectedRoles: state.selectedRoles.map((r) =>
+                r.id === role.id ? { ...r, quantity: newQty } : r
+              ),
+            };
+          } else if (action === 'add') {
+            return {
+              selectedRoles: [...state.selectedRoles, { ...role, quantity: 1 }],
+            };
+          }
+        } else {
+          if (action === 'toggle') {
+            if (existing) {
+              return {
+                selectedRoles: state.selectedRoles.filter(
+                  (r) => r.id !== role.id
+                ),
+              };
+            } else {
+              return {
+                selectedRoles: [
+                  ...state.selectedRoles,
+                  { ...role, quantity: 1 },
+                ],
+              };
+            }
+          }
+          if (existing) {
+            return {
+              selectedRoles: state.selectedRoles.filter(
+                (r) => r.id !== role.id
+              ),
+            };
+          } else if (action === 'add') {
+            return {
+              selectedRoles: [...state.selectedRoles, { ...role, quantity: 1 }],
+            };
+          }
+        }
+        return {};
+      });
     },
     setRoundTimer: async (minutes) => {
       const roundTimer = minutes * 60;
@@ -237,6 +298,30 @@ export const useLobbyStore = create<LobbyStore>()(
         });
       }
     },
-    startGame: () => {},
+    setPlayerReady: (playerId: string, ready: boolean) => {
+      set((state) => ({
+        players: state.players.map((player) =>
+          player.id === playerId ? { ...player, isReady: ready } : player
+        ),
+      }));
+    },
+    startGame: () => {
+      const { hostId, players, selectedRoles } = get();
+      // const userId = ... // get current user id from auth/session
+      const requiredRoles = players.length + 3;
+      const selectedCount = selectedRoles.reduce(
+        (sum, r) => sum + r.quantity,
+        0
+      );
+      // if (userId !== hostId) {
+      //   toast.error('Only the host can start the game.');
+      //   return;
+      // }
+      if (selectedCount < requiredRoles) {
+        toast.error('Not enough roles selected.');
+        return;
+      }
+      // ...start game logic
+    },
   }))
 );
