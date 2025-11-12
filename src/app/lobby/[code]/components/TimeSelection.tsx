@@ -1,19 +1,16 @@
 'use client';
-import { useState } from 'react';
+// import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLobbyStore } from '@/stores/useLobbyStore';
-
 
 const MINUTES = [1, 2, 3, 4, 5];
 
 const TimeSelection = () => {
-  const [selected, setSelected] = useState(3);
   const { setRoundTimer, roundTimer } = useLobbyStore();
+  const selected = roundTimer / 60;
 
   const handleSelect = (minute: number) => {
-    setSelected(minute);
     setRoundTimer(minute);
-    console.log('Round time set to:', roundTimer, 'seconds');
   };
 
   return (

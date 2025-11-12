@@ -20,6 +20,7 @@ export default function LobbyStateInitializer({
     setInvitedFriends,
     setHostId,
     connectToLobbySocket,
+    syncLobby,
   } = useLobbyStore();
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export default function LobbyStateInitializer({
       );
       const isHost = game.hostId === userId;
       connectToLobbySocket(code, isHost);
+      syncLobby(code);
     }
   }, [
     game,
@@ -53,7 +55,41 @@ export default function LobbyStateInitializer({
     setInvitedFriends,
     setHostId,
     connectToLobbySocket,
+    syncLobby, // <-- Add to deps
   ]);
+
+  // useEffect(() => {
+  //   reset();
+  //   if (code) setRoomCode(code);
+  //   if (game) {
+  //     setHostId(game.hostId);
+  //     setPlayers(
+  //       game.players.map((p: PlayerType) => ({
+  //         id: p.userId,
+  //         name: p.name,
+  //         isHost: p.userId === game.hostId,
+  //         isReady: !!p.isReady,
+  //       }))
+  //     );
+  //     setInvitedFriends(
+  //       game.invites.map(
+  //         (invite: { recipientId: string }) => invite.recipientId
+  //       )
+  //     );
+  //     const isHost = game.hostId === userId;
+  //     connectToLobbySocket(code, isHost);
+  //   }
+  // }, [
+  //   game,
+  //   code,
+  //   userId,
+  //   reset,
+  //   setRoomCode,
+  //   setPlayers,
+  //   setInvitedFriends,
+  //   setHostId,
+  //   connectToLobbySocket,
+  // ]);
 
   return null;
 }
