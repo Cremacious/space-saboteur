@@ -53,6 +53,10 @@ export default function handler(
         console.log('Being sent...');
         io.emit('lobby-settings-updated', settings);
       });
+
+      socket.on('game-started', ({ lobbyCode }) => {
+        io.to(lobbyCode).emit('redirect-to-game', { code: lobbyCode });
+      });
     });
 
     res.socket.server.io = io;

@@ -6,6 +6,7 @@ import {
   removePlayerFromLobby,
   updateGameSettings,
 } from '@/actions/lobby.action';
+import { startGameInDb } from '@/actions/game.action';
 import { GameSettingsType } from '@/lib/types/game.type';
 import { create } from 'zustand';
 import { useRouter } from 'next/navigation';
@@ -100,7 +101,6 @@ export const useLobbyStore = create<LobbyStore>()(
         set({ socket: null });
       }
     },
-
     createGame: async (
       router: ReturnType<typeof useRouter>
     ): Promise<{ code: string; hostId: string } | undefined> => {
@@ -305,9 +305,18 @@ export const useLobbyStore = create<LobbyStore>()(
         ),
       }));
     },
-    startGame: () => {
-      //TODO: Players have to be online to start game
-      console.log('Add functionality later');
+    startGame: async () => {
+      const { roomCode, socket, players } = get();
+      if (!roomCode || !socket) return;
+
+      try {
+        await startGameInDb(roomCode);
+
+        socket.emit('game-started', { lobbyCode: roomCode });
+      } catch (error) {
+        console.error('Failed to start game:', error);
+        toast.error('Failed to start game');
+      }
     },
   }))
 );

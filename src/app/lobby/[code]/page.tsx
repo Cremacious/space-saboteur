@@ -10,6 +10,7 @@ import { redirect } from 'next/navigation';
 import { checkAuthorizedGameAccess } from '@/actions/lobby.action';
 import LobbyStateInitializer from './components/LobbyStateInitializer';
 import PlayerWaitingDisplay from './components/PlayerWaitingDisplay';
+import LobbyRedirectListener from './components/LobbyRedirectListener';
 
 //TODO: only show invite friends if user is the host
 
@@ -37,6 +38,7 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
           userId={user!.id}
         />
       )}
+      <LobbyRedirectListener />
 
       <div className="mx-auto w-full">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-10 px-4 items-start">

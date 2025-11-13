@@ -1,11 +1,9 @@
-'use client';
-
 import RoundInfo from './components/RoundInfo';
 import Players from './components/Players';
 import CenterDeck from './components/CenterDeck';
 import RoleDrawer from './components/RoleDrawer';
 import TurnAction from './components/TurnAction';
-
+import { getGameByCode } from '@/actions/game.action';
 const players = [
   { id: 1, name: 'You', eliminated: false },
   { id: 2, name: 'Alex', eliminated: false },
@@ -25,10 +23,19 @@ const centerDeck = ['Card 1', 'Card 2', 'Card 3'];
 const round = 2;
 const totalRounds = 4;
 
-const GameBoardPage = () => {
+const GameBoardPage = async ({
+  params,
+}: {
+  params: Promise<{ code: string }>;
+}) => {
+  const { code } = await params;
+  const game = await getGameByCode(code);
+  console.log('Game data:', game);
+
   return (
     <div className="min-h-screen w-full flex justify-center items-start py-10 px-4 m-2 md:m-4 ">
       <div className="metallic-container max-w-7xl w-full mx-auto flex flex-col items-center">
+        <h1 className="text-2xl text-white">{code}</h1>
         <RoundInfo round={round} totalRounds={totalRounds} players={players} />
         <Players players={players} />
         <CenterDeck centerDeck={centerDeck} />
