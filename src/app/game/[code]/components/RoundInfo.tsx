@@ -7,7 +7,7 @@ const RoundInfo = ({
 }: {
   round: number;
   totalRounds: number;
-  players: { id: number; name: string; eliminated: boolean }[];
+  players: { id: string; name: string; eliminated: boolean }[];
 }) => {
   return (
     <div className="w-full max-w-4xl mx-auto mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-2">

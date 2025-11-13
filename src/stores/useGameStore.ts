@@ -1,24 +1,25 @@
 import { create } from 'zustand';
+import { setPlayerReady, getGameByCode } from '@/actions/game.action';
+import type { PlayerType } from '@/lib/types/player.type';
+import type { RoleType } from '@/lib/types/role.type';
+import type { GameType } from '@/lib/types/game.type';
 
-type Player = {
-  id: string;
-  name: string;
-  eliminated: boolean;
-  roleId: number;
-  isReady: boolean;
-};
-type RoleCard = { id: number; name: string; description: string };
+type GamePhase = 'turns' | 'discussion' | 'voting' | 'end';
 
-export const useGameStore = create<{
-  players: Player[];
-  centerDeck: RoleCard[];
+type GameStore = {
+  players: PlayerType[];
+  centerDeck: RoleType[];
   round: number;
   totalRounds: number;
   currentTurn: number;
   turnOrder: string[];
-  gamePhase: 'turns' | 'discussion' | 'voting' | 'end';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  actions: any[];
+  gamePhase: GamePhase;
+
+  isReadyDialogOpen: boolean;
+  setIsReadyDialogOpen: (open: boolean) => void;
+  readyUp: (gameCode: string, userId: string) => Promise<void>;
+  syncGame: (gameCode: string) => Promise<void>;
+
   assignRoles: () => void;
   nextTurn: () => void;
   completeTurn: () => void;
@@ -26,16 +27,36 @@ export const useGameStore = create<{
   startVoting: () => void;
   eliminatePlayer: (playerId: string) => void;
   resetGame: () => void;
-}>((set, get) => ({
-  // put logic here
+};
+
+export const useGameStore = create<GameStore>((set, get) => ({
   players: [],
   centerDeck: [],
-  round: 1,
+  round: 0,
   totalRounds: 0,
   currentTurn: 0,
   turnOrder: [],
   gamePhase: 'turns',
-  actions: [],
+
+  isReadyDialogOpen: true,
+  setIsReadyDialogOpen: (open) => set({ isReadyDialogOpen: open }),
+
+  readyUp: async (gameCode, userId) => {
+    const { allReady } = await setPlayerReady(gameCode, userId);
+    await get().syncGame(gameCode);
+    set({ isReadyDialogOpen: !allReady }); // Only close dialog if all are ready
+  },
+
+  syncGame: async (gameCode) => {
+    const game: GameType = await getGameByCode(gameCode);
+    set({
+      players: game.players,
+      round: game.currentRound,
+      totalRounds: game.rounds,
+      // Add other game state as needed
+    });
+  },
+
   assignRoles: () => {
     /* put logic here */
   },

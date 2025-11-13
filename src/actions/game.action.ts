@@ -117,3 +117,29 @@ export async function startGameInDb(gameCode: string) {
     },
   });
 }
+
+export async function setPlayerReady(gameCode: string, userId: string) {
+  await prisma.gamePlayer.updateMany({
+    where: {
+      game: { code: gameCode },
+      userId,
+    },
+    data: { isReady: true },
+  });
+
+  const game = await prisma.game.findUnique({
+    where: { code: gameCode },
+    include: { players: true },
+  });
+  if (!game) throw new Error('Game not found');
+  const allReady = game.players.every((p) => p.isReady);
+
+  if (allReady) {
+    await prisma.game.update({
+      where: { code: gameCode },
+      data: { currentRound: 1, status: 'inProgress' },
+    });
+  }
+
+  return { allReady };
+}

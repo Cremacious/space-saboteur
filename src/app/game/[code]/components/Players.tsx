@@ -5,7 +5,7 @@ import { useState } from 'react';
 const Players = ({
   players,
 }: {
-  players: { id: number; name: string; eliminated: boolean }[];
+  players: { id: string; name: string; eliminated: boolean }[];
 }) => {
   const [viewPlayers, setViewPlayers] = useState(false);
 
