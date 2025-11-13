@@ -4,6 +4,16 @@ import prisma from '@/lib/prisma';
 // import { getAuthenticatedUser } from '@/lib/auth-server';
 import { GameType } from '@/lib/types/game.type';
 
+export async function getAllRoles() {
+  try {
+    const roles = await prisma.role.findMany();
+    return roles;
+  } catch (error) {
+    console.error('Error fetching roles:', error);
+    throw new Error('Failed to fetch roles');
+  }
+}
+
 export async function getGamesByUser(userId: string) {
   try {
     const games = await prisma.game.findMany({

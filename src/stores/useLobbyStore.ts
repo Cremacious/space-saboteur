@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import io from 'socket.io-client';
 
 type Player = { id: string; name: string; isHost: boolean; isReady: boolean };
-type RoleCard = { id: number; name: string; description: string };
+type RoleCard = { id: string; name: string; description: string };
 type BackendPlayer = { userId: string; isReady: boolean; name: string };
 type SelectedRole = RoleCard & { quantity: number };
 
@@ -203,90 +203,93 @@ export const useLobbyStore = create<LobbyStore>()(
       }
     },
     setSelectedRoles: (role, action) => {
-      set((state) => {
-        const existing = state.selectedRoles.find((r) => r.id === role.id);
-        let newSelectedRoles = state.selectedRoles;
-        if (role.id === 1 || role.id === 9) {
-          if (action === 'toggle') {
-            if (existing) {
-              newSelectedRoles = state.selectedRoles.filter(
-                (r) => r.id !== role.id
-              );
-            } else {
-              newSelectedRoles = [
-                ...state.selectedRoles,
-                { ...role, quantity: 1 },
-              ];
-            }
-          } else if (existing) {
-            const newQty =
-              action === 'add' ? existing.quantity + 1 : existing.quantity - 1;
-            if (newQty < 1) {
-              newSelectedRoles = state.selectedRoles.filter(
-                (r) => r.id !== role.id
-              );
-            } else {
-              newSelectedRoles = state.selectedRoles.map((r) =>
-                r.id === role.id ? { ...r, quantity: newQty } : r
-              );
-            }
-          } else if (action === 'add') {
-            newSelectedRoles = [
-              ...state.selectedRoles,
-              { ...role, quantity: 1 },
-            ];
-          }
-        } else {
-          if (action === 'toggle') {
-            if (existing) {
-              newSelectedRoles = state.selectedRoles.filter(
-                (r) => r.id !== role.id
-              );
-            } else {
-              newSelectedRoles = [
-                ...state.selectedRoles,
-                { ...role, quantity: 1 },
-              ];
-            }
-          } else if (existing) {
+      const state = get();
+      const existing = state.selectedRoles.find((r) => r.id === role.id);
+      let newSelectedRoles = state.selectedRoles;
+      if (role.name === 'Saboteur' || role.name === 'Passenger') {
+        if (action === 'toggle') {
+          if (existing) {
             newSelectedRoles = state.selectedRoles.filter(
               (r) => r.id !== role.id
             );
-          } else if (action === 'add') {
+          } else {
             newSelectedRoles = [
               ...state.selectedRoles,
               { ...role, quantity: 1 },
             ];
           }
+        } else if (existing) {
+          const newQty =
+            action === 'add' ? existing.quantity + 1 : existing.quantity - 1;
+          if (newQty < 1) {
+            newSelectedRoles = state.selectedRoles.filter(
+              (r) => r.id !== role.id
+            );
+          } else {
+            newSelectedRoles = state.selectedRoles.map((r) =>
+              r.id === role.id ? { ...r, quantity: newQty } : r
+            );
+          }
+        } else if (action === 'add') {
+          newSelectedRoles = [...state.selectedRoles, { ...role, quantity: 1 }];
         }
-        // Emit socket event if host
-        const { socket, isHost, roomCode, roundTimer } = get();
-        if (isHost && socket && roomCode) {
-          console.log('Emitting update-lobby-settings from setSelectedRoles', {
-            lobbyCode: roomCode,
-            settings: { selectedRoles: newSelectedRoles, roundTimer },
-          });
-          socket.emit('update-lobby-settings', {
-            lobbyCode: roomCode,
-            settings: { selectedRoles: newSelectedRoles, roundTimer },
-          });
+      } else {
+        if (action === 'toggle') {
+          if (existing) {
+            newSelectedRoles = state.selectedRoles.filter(
+              (r) => r.id !== role.id
+            );
+          } else {
+            newSelectedRoles = [
+              ...state.selectedRoles,
+              { ...role, quantity: 1 },
+            ];
+          }
+        } else if (existing) {
+          newSelectedRoles = state.selectedRoles.filter(
+            (r) => r.id !== role.id
+          );
+        } else if (action === 'add') {
+          newSelectedRoles = [...state.selectedRoles, { ...role, quantity: 1 }];
         }
-        return { selectedRoles: newSelectedRoles };
-      });
+      }
+      set({ selectedRoles: newSelectedRoles });
+
+      // Async side effects after state update
+      const { socket, isHost, roomCode, roundTimer } = get();
+      if (isHost && roomCode) {
+        updateGameSettings(roomCode, {
+          selectedRoles: newSelectedRoles,
+          roundTimer,
+        }).catch((error) => {
+          console.error('Failed to update DB', error);
+        });
+      }
+      if (isHost && socket && roomCode) {
+        console.log('Emitting update-lobby-settings from setSelectedRoles', {
+          lobbyCode: roomCode,
+          settings: { selectedRoles: newSelectedRoles, roundTimer },
+        });
+        socket.emit('update-lobby-settings', {
+          lobbyCode: roomCode,
+          settings: { selectedRoles: newSelectedRoles, roundTimer },
+        });
+      }
     },
     setRoundTimer: async (minutes) => {
       const roundTimer = minutes * 60;
       set({ roundTimer });
-      const { roomCode, selectedRoles } = get();
-      try {
-        await updateGameSettings(roomCode, {
-          selectedRoles,
-          roundTimer,
-        });
-      } catch (error) {
-        console.error('Failed to update DB', error);
+      const { roomCode, selectedRoles, socket, isHost } = get();
+      if (isHost && roomCode) {
+        try {
+          await updateGameSettings(roomCode, {
+            selectedRoles,
+            roundTimer,
+          });
+        } catch (error) {
+          console.error('Failed to update DB', error);
+        }
       }
-      const { socket, isHost } = get();
       if (isHost && socket && roomCode) {
         console.log('Emitting update-lobby-settings from setRoundTimer', {
           lobbyCode: roomCode,

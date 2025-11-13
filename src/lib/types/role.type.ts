@@ -1,5 +1,5 @@
 export type RoleType = {
-  id: number;
+  id: string;
   image?: string;
   name: string;
   description: string;

@@ -14,8 +14,6 @@ type RoleSelectionCardProps = {
   onRemove: () => void;
 };
 
-// const quantity = 1;
-
 const RoleSelectionCard = ({
   card,
   cardIsSelected,
@@ -59,7 +57,7 @@ const RoleSelectionCard = ({
             <span className="uppercase text-cyan-300 space-font tracking-widest text-xs mt-1">
               Selected
             </span>
-            {(card.id === 1 || card.id === 9) && (
+            {(card.name === 'Saboteur' || card.name === 'Passenger') && (
               <div className="flex flex-row gap-4 justify-center items-center mt-1 mb-0.5">
                 <Button
                   onClick={(e) => {

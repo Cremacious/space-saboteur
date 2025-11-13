@@ -3,6 +3,7 @@ import { setPlayerReady, getGameByCode } from '@/actions/game.action';
 import type { PlayerType } from '@/lib/types/player.type';
 import type { RoleType } from '@/lib/types/role.type';
 import type { GameType } from '@/lib/types/game.type';
+import io from 'socket.io-client';
 
 type GamePhase = 'turns' | 'discussion' | 'voting' | 'end';
 
@@ -19,6 +20,7 @@ type GameStore = {
   setIsReadyDialogOpen: (open: boolean) => void;
   readyUp: (gameCode: string, userId: string) => Promise<void>;
   syncGame: (gameCode: string) => Promise<void>;
+  initReadySocket: (gameCode: string) => void;
 
   assignRoles: () => void;
   nextTurn: () => void;
@@ -28,6 +30,8 @@ type GameStore = {
   eliminatePlayer: (playerId: string) => void;
   resetGame: () => void;
 };
+
+let socket: ReturnType<typeof io> | null = null;
 
 export const useGameStore = create<GameStore>((set, get) => ({
   players: [],
@@ -42,18 +46,45 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setIsReadyDialogOpen: (open) => set({ isReadyDialogOpen: open }),
 
   readyUp: async (gameCode, userId) => {
-    const { allReady } = await setPlayerReady(gameCode, userId);
+    // Optimistically update local state
+    set((state) => ({
+      players: state.players.map((p) =>
+        p.id === userId ? { ...p, isReady: true } : p
+      ),
+    }));
+
+    await setPlayerReady(gameCode, userId);
+    // Emit socket event to notify all clients to sync
+    if (socket) {
+      socket.emit('player-ready', { gameCode });
+    }
     await get().syncGame(gameCode);
-    set({ isReadyDialogOpen: !allReady }); // Only close dialog if all are ready
+    // Dialog state will be handled in syncGame for all clients
   },
 
   syncGame: async (gameCode) => {
     const game: GameType = await getGameByCode(gameCode);
+    const allReady =
+      game.players.length > 0 && game.players.every((p) => p.isReady);
     set({
       players: game.players,
       round: game.currentRound,
       totalRounds: game.rounds,
+      isReadyDialogOpen: !allReady,
       // Add other game state as needed
+    });
+  },
+
+  // Call this once in the game page/component to set up socket listeners
+  initReadySocket: (gameCode: string) => {
+    if (!socket) {
+      socket = io({ path: '/api/socket' });
+    }
+    socket.emit('join-lobby', gameCode);
+    socket.off('player-ready');
+    socket.on('player-ready', async (payload: { gameCode: string }) => {
+      // Sync game state when any player is ready
+      await get().syncGame(payload.gameCode);
     });
   },
 

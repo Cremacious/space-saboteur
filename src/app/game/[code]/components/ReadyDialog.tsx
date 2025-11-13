@@ -13,7 +13,7 @@ const ReadyDialog = ({
 }) => {
   const { isReadyDialogOpen, readyUp, players: storePlayers } = useGameStore();
 
-  // Find the current player in the store
+
   const player = storePlayers.find((p) => p.id === userId);
 
   // Check if all players are ready

@@ -37,6 +37,13 @@ export default function handler(
         socket.join(lobbyCode);
       });
 
+      // Relay player-ready event to all clients in the lobby
+      socket.on('player-ready', ({ gameCode }) => {
+        if (gameCode) {
+          io.to(gameCode).emit('player-ready', { gameCode });
+        }
+      });
+
       socket.on('update-lobby-settings', ({ lobbyCode, settings }) => {
         console.log(
           'Emitting lobby-settings-updated',

@@ -7,6 +7,8 @@ import { getGameByCode } from '@/actions/game.action';
 import ReadyDialog from './components/ReadyDialog';
 import { getAuthenticatedUser } from '@/lib/auth-server';
 import { redirect } from 'next/navigation';
+
+import { useGameStore } from '@/stores/useGameStore';
 //TODO: Protect this route to only allow access to players in the game
 
 const centerDeck = ['Card 1', 'Card 2', 'Card 3'];
@@ -18,11 +20,17 @@ const GameBoardPage = async ({
 }) => {
   const { code } = await params;
   const game = await getGameByCode(code);
-  console.log('Game data:', game);
   const { user, error } = await getAuthenticatedUser();
 
   if (error) {
     redirect('/sign-in');
+  }
+
+  // Set up socket listeners for ready state updates
+  // This must be done on the client only
+  if (typeof window !== 'undefined') {
+    const { initReadySocket } = useGameStore.getState();
+    initReadySocket(code);
   }
 
   return (

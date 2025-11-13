@@ -3,7 +3,7 @@ import RoleSelectionCard from './RoleSelectionCard';
 import { useLobbyStore } from '@/stores/useLobbyStore';
 
 type RoleCard = {
-  id: number;
+  id: string;
   image?: string;
   name: string;
   description: string;

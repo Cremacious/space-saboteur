@@ -3,7 +3,6 @@ import PlayerList from './components/PlayerList';
 import InviteFriends from './components/InviteFriends';
 import RoleSelection from './components/RoleSelection';
 import TimeSelection from './components/TimeSelection';
-import { ROLES } from '@/lib/sampleData/rolesData';
 import StartGameButton from './components/StartGameButton';
 import { getAuthenticatedUser } from '@/lib/auth-server';
 import { redirect } from 'next/navigation';
@@ -11,6 +10,7 @@ import { checkAuthorizedGameAccess } from '@/actions/lobby.action';
 import LobbyStateInitializer from './components/LobbyStateInitializer';
 import PlayerWaitingDisplay from './components/PlayerWaitingDisplay';
 import LobbyRedirectListener from './components/LobbyRedirectListener';
+import { getAllRoles } from '@/actions/game.action';
 
 //TODO: only show invite friends if user is the host
 
@@ -29,6 +29,7 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
 
   const isHost = currentGame.game && currentGame.game.hostId === user!.id;
 
+  const roles = await getAllRoles();
   return (
     <div className="min-h-screen flex items-center">
       {currentGame.game && (
@@ -93,7 +94,7 @@ const LobbyPage = async ({ params }: { params: Promise<{ code: string }> }) => {
                   </div>
                 </div>
                 <div className="mt-8">
-                  <RoleSelection roles={ROLES} />
+                  <RoleSelection roles={roles} />
                 </div>
               </div>
             ) : (
