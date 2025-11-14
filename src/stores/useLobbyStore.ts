@@ -6,7 +6,7 @@ import {
   removePlayerFromLobby,
   updateGameSettings,
 } from '@/actions/lobby.action';
-import { startGameInDb } from '@/actions/game.action';
+import { startGameInDb, assignRolesToPlayers } from '@/actions/game.action';
 import { GameSettingsType } from '@/lib/types/game.type';
 import { create } from 'zustand';
 import { useRouter } from 'next/navigation';
@@ -255,7 +255,6 @@ export const useLobbyStore = create<LobbyStore>()(
       }
       set({ selectedRoles: newSelectedRoles });
 
-      // Async side effects after state update
       const { socket, isHost, roomCode, roundTimer } = get();
       if (isHost && roomCode) {
         updateGameSettings(roomCode, {
@@ -314,7 +313,7 @@ export const useLobbyStore = create<LobbyStore>()(
 
       try {
         await startGameInDb(roomCode);
-
+        await assignRolesToPlayers(roomCode);
         socket.emit('game-started', { lobbyCode: roomCode });
       } catch (error) {
         console.error('Failed to start game:', error);

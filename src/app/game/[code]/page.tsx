@@ -4,14 +4,14 @@ import CenterDeck from './components/CenterDeck';
 import RoleDrawer from './components/RoleDrawer';
 import TurnAction from './components/TurnAction';
 import { getGameByCode } from '@/actions/game.action';
-import ReadyDialog from './components/ReadyDialog';
 import { getAuthenticatedUser } from '@/lib/auth-server';
 import { redirect } from 'next/navigation';
-
+import GameSyncer from './components/GameSyncer';
 import { useGameStore } from '@/stores/useGameStore';
+import { getAllRoles } from '@/actions/game.action';
 //TODO: Protect this route to only allow access to players in the game
 
-const centerDeck = ['Card 1', 'Card 2', 'Card 3'];
+// const centerDeck = ['Card 1', 'Card 2', 'Card 3'];
 
 const GameBoardPage = async ({
   params,
@@ -26,15 +26,16 @@ const GameBoardPage = async ({
     redirect('/sign-in');
   }
 
-  // Set up socket listeners for ready state updates
-  // This must be done on the client only
   if (typeof window !== 'undefined') {
     const { initReadySocket } = useGameStore.getState();
     initReadySocket(code);
   }
 
+  const roles = await getAllRoles();
+
   return (
     <div className="min-h-screen w-full flex justify-center items-start py-10 px-4 m-2 md:m-4 ">
+      <GameSyncer code={code} />
       <div className="metallic-container max-w-7xl w-full mx-auto flex flex-col items-center">
         <div className="space-font neon-subheader">{code}</div>
         <RoundInfo
@@ -43,11 +44,10 @@ const GameBoardPage = async ({
           players={game.players}
         />
         <Players players={game.players} />
-        <CenterDeck centerDeck={centerDeck} />
+        <CenterDeck />
         <TurnAction />
-        <RoleDrawer />
+        <RoleDrawer roles={roles} userId={user!.id} />
       </div>
-      <ReadyDialog userId={user!.id} gameCode={code} players={game.players} />
     </div>
   );
 };

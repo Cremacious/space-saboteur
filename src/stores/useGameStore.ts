@@ -1,15 +1,17 @@
 import { create } from 'zustand';
-import { setPlayerReady, getGameByCode } from '@/actions/game.action';
+import { assignRolesToPlayers, getGameByCode } from '@/actions/game.action';
 import type { PlayerType } from '@/lib/types/player.type';
 import type { RoleType } from '@/lib/types/role.type';
 import type { GameType } from '@/lib/types/game.type';
 import io from 'socket.io-client';
+import { devtools } from 'zustand/middleware';
 
 type GamePhase = 'turns' | 'discussion' | 'voting' | 'end';
+type CenterCard = { roleId: string; position: number };
 
 type GameStore = {
   players: PlayerType[];
-  centerDeck: RoleType[];
+  centerDeck: CenterCard[];
   round: number;
   totalRounds: number;
   currentTurn: number;
@@ -21,8 +23,8 @@ type GameStore = {
   readyUp: (gameCode: string, userId: string) => Promise<void>;
   syncGame: (gameCode: string) => Promise<void>;
   initReadySocket: (gameCode: string) => void;
-
-  assignRoles: () => void;
+  syncCenterDeck: (gameCode: string) => Promise<void>;
+  assignRoles: (gameCode: string) => Promise<void>;
   nextTurn: () => void;
   completeTurn: () => void;
   startDiscussion: () => void;
@@ -33,80 +35,77 @@ type GameStore = {
 
 let socket: ReturnType<typeof io> | null = null;
 
-export const useGameStore = create<GameStore>((set, get) => ({
-  players: [],
-  centerDeck: [],
-  round: 0,
-  totalRounds: 0,
-  currentTurn: 0,
-  turnOrder: [],
-  gamePhase: 'turns',
+export const useGameStore = create<GameStore>()(
+  devtools(
+    (set, get) => ({
+      players: [],
+      centerDeck: [],
+      round: 0,
+      totalRounds: 0,
+      currentTurn: 0,
+      turnOrder: [],
+      gamePhase: 'turns',
 
-  isReadyDialogOpen: true,
-  setIsReadyDialogOpen: (open) => set({ isReadyDialogOpen: open }),
+      isReadyDialogOpen: true,
+      setIsReadyDialogOpen: (open) => set({ isReadyDialogOpen: open }),
 
-  readyUp: async (gameCode, userId) => {
-    // Optimistically update local state
-    set((state) => ({
-      players: state.players.map((p) =>
-        p.id === userId ? { ...p, isReady: true } : p
-      ),
-    }));
+      readyUp: async () => {},
+      syncCenterDeck: async (gameCode) => {},
 
-    await setPlayerReady(gameCode, userId);
-    // Emit socket event to notify all clients to sync
-    if (socket) {
-      socket.emit('player-ready', { gameCode });
-    }
-    await get().syncGame(gameCode);
-    // Dialog state will be handled in syncGame for all clients
-  },
+      // src/stores/useGameStore.ts
+      syncGame: async (gameCode) => {
+        const game = await getGameByCode(gameCode);
+        if (!game) return;
 
-  syncGame: async (gameCode) => {
-    const game: GameType = await getGameByCode(gameCode);
-    const allReady =
-      game.players.length > 0 && game.players.every((p) => p.isReady);
-    set({
-      players: game.players,
-      round: game.currentRound,
-      totalRounds: game.rounds,
-      isReadyDialogOpen: !allReady,
-      // Add other game state as needed
-    });
-  },
+        set({
+          players: game.players, 
+          centerDeck: game.centerCards.map((card) => ({
+            roleId: card.roleId,
+            position: card.position,
+          })),
+          round: game.currentRound,
+          totalRounds: game.rounds,
+          isReadyDialogOpen: !game.players.every((p) => p.isReady),
+        });
+      },
+      initReadySocket: (gameCode: string) => {
+        if (!socket) {
+          socket = io({ path: '/api/socket' });
+        }
+        socket.emit('join-lobby', gameCode);
+        socket.off('player-ready');
+        socket.on('player-ready', async (payload: { gameCode: string }) => {
+          await get().syncGame(payload.gameCode);
+        });
+      },
 
-  // Call this once in the game page/component to set up socket listeners
-  initReadySocket: (gameCode: string) => {
-    if (!socket) {
-      socket = io({ path: '/api/socket' });
-    }
-    socket.emit('join-lobby', gameCode);
-    socket.off('player-ready');
-    socket.on('player-ready', async (payload: { gameCode: string }) => {
-      // Sync game state when any player is ready
-      await get().syncGame(payload.gameCode);
-    });
-  },
-
-  assignRoles: () => {
-    /* put logic here */
-  },
-  nextTurn: () => {
-    /* put logic here */
-  },
-  completeTurn: () => {
-    /* put logic here */
-  },
-  startDiscussion: () => {
-    /* put logic here */
-  },
-  startVoting: () => {
-    /* put logic here */
-  },
-  eliminatePlayer: (playerId) => {
-    /* put logic here */
-  },
-  resetGame: () => {
-    /* put logic here */
-  },
-}));
+      assignRoles: async (gameCode: string) => {
+        try {
+          await assignRolesToPlayers(gameCode);
+          await get().syncGame(gameCode);
+        } catch (error) {
+          console.error('Failed to assign roles:', error);
+        }
+      },
+      nextTurn: () => {
+        /* put logic here */
+      },
+      completeTurn: () => {
+        /* put logic here */
+      },
+      startDiscussion: () => {
+        /* put logic here */
+      },
+      startVoting: () => {
+        /* put logic here */
+      },
+      eliminatePlayer: (playerId) => {
+        /* put logic here */
+      },
+      resetGame: () => {
+        /* put logic here */
+      },
+    }),
+    { name: 'GameStore' }
+  )
+);

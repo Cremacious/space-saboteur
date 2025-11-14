@@ -1,3 +1,4 @@
+'use client'
 import {
   Drawer,
   DrawerTrigger,
@@ -6,9 +7,21 @@ import {
   DrawerTitle,
   DrawerClose,
 } from '@/components/ui/drawer';
-import RoleCard from '@/components/roles/RoleCard';
+// import RoleCard from '@/components/roles/RoleCard';
+import { RoleType } from '@/lib/types/role.type';
+import { useGameStore } from '@/stores/useGameStore';
 
-const RoleDrawer = () => {
+const RoleDrawer = ({
+  userId,
+  roles,
+}: {
+  userId: string;
+  roles: RoleType[];
+}) => {
+  const players = useGameStore((s) => s.players);
+  const player = players.find((p) => p.userId === userId || p.id === userId);
+  const role = roles.find((r) => r.id === player?.roleId);
+
   return (
     <div className="">
       <Drawer>
@@ -23,7 +36,16 @@ const RoleDrawer = () => {
               Your Role Card
             </DrawerTitle>
           </DrawerHeader>
-          <RoleCard />
+          {role ? (
+            <div className="text-center space-y-2">
+              <div className="text-cyan-300 text-2xl font-bold">
+                {role.name}
+              </div>
+              <div className="text-cyan-500 text-sm">Role ID: {role.id}</div>
+            </div>
+          ) : (
+            <div className="text-red-400">No role assigned yet.</div>
+          )}
           <DrawerClose>
             <button className="mt-4 blue-box text-cyan-300 px-4 py-2 rounded-xl">
               Close

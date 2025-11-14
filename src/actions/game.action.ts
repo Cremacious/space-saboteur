@@ -76,6 +76,7 @@ export async function getGameByCode(code: string) {
             actions: true,
           },
         },
+        centerCards: true,
         invites: {
           include: {
             sender: {
@@ -128,28 +129,113 @@ export async function startGameInDb(gameCode: string) {
   });
 }
 
-export async function setPlayerReady(gameCode: string, userId: string) {
-  await prisma.gamePlayer.updateMany({
-    where: {
-      game: { code: gameCode },
-      userId,
-    },
-    data: { isReady: true },
-  });
+// export async function setPlayerReady(gameCode: string, userId: string) {
+//   await prisma.gamePlayer.updateMany({
+//     where: {
+//       game: { code: gameCode },
+//       userId,
+//     },
+//     data: { isReady: true },
+//   });
 
+//   const game = await prisma.game.findUnique({
+//     where: { code: gameCode },
+//     include: { players: true },
+//   });
+//   if (!game) throw new Error('Game not found');
+//   const allReady = game.players.every((p) => p.isReady);
+
+//   if (allReady) {
+//     await prisma.game.update({
+//       where: { code: gameCode },
+//       data: { currentRound: 1, status: 'inProgress' },
+//     });
+//   }
+
+//   return { allReady };
+// }
+
+export async function assignRolesToPlayers(gameCode: string) {
   const game = await prisma.game.findUnique({
     where: { code: gameCode },
     include: { players: true },
   });
   if (!game) throw new Error('Game not found');
-  const allReady = game.players.every((p) => p.isReady);
 
-  if (allReady) {
-    await prisma.game.update({
-      where: { code: gameCode },
-      data: { currentRound: 1, status: 'inProgress' },
+  interface GameSettings {
+    selectedRoles?: { id: string; quantity: number }[];
+    [key: string]: unknown;
+  }
+
+  let settings: GameSettings = game.settings as GameSettings;
+  if (typeof settings === 'string') {
+    try {
+      settings = JSON.parse(settings) as GameSettings;
+    } catch {
+      settings = {};
+    }
+  }
+  const selectedRoles = Array.isArray(settings.selectedRoles)
+    ? settings.selectedRoles
+    : [];
+
+  if (selectedRoles.length === 0) {
+    throw new Error('No roles have been selected for this game.');
+  }
+
+  const rolePool: string[] = [];
+  selectedRoles.forEach((role) => {
+    for (let i = 0; i < role.quantity; i++) {
+      rolePool.push(role.id);
+    }
+  });
+
+  if (rolePool.length < game.players.length) {
+    throw new Error('Not enough roles selected for the number of players.');
+  }
+
+  for (let i = rolePool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [rolePool[i], rolePool[j]] = [rolePool[j], rolePool[i]];
+  }
+
+  for (let i = 0; i < game.players.length; i++) {
+    const player = game.players[i];
+    const roleId = rolePool[i];
+    await prisma.gamePlayer.update({
+      where: { id: player.id },
+      data: { roleId },
     });
   }
 
-  return { allReady };
+  await prisma.game.update({
+    where: { code: gameCode },
+    data: { currentRound: 1, status: 'inProgress' },
+  });
+
+  const allRoles = [...rolePool];
+  const playerRoles = allRoles.slice(0, game.players.length);
+  const centerRoles = allRoles.slice(
+    game.players.length,
+    game.players.length + 3
+  );
+
+  for (let i = 0; i < game.players.length; i++) {
+    await prisma.gamePlayer.update({
+      where: { id: game.players[i].id },
+      data: { roleId: playerRoles[i] },
+    });
+  }
+
+  for (let i = 0; i < 3; i++) {
+    await prisma.centerCard.create({
+      data: {
+        gameId: game.id,
+        roleId: centerRoles[i],
+        position: i,
+      },
+    });
+  }
+
+  return true;
 }

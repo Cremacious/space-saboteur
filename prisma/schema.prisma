@@ -28,7 +28,7 @@ model User {
  
   verifications Verification[]
 
-  // Game logic
+
   games         GamePlayer[]      
   hostedGames   Game[]            @relation("HostGames")
   friends       Friend[]          @relation("UserFriends")
@@ -72,6 +72,7 @@ model Game {
   invites      GameInvite[]
   actions      GameAction[]
   votes        Vote[]
+  centerCards  CenterCard[]
 }
 
 model GamePlayer {
@@ -112,6 +113,7 @@ model Role {
   ability     String
   image       String
   gamePlayers GamePlayer[]  
+  centerCards CenterCard[] 
 }
 
 model GameAction {
@@ -124,6 +126,15 @@ model GameAction {
   action    String   
   target    String?  
   createdAt DateTime @default(now())
+}
+
+model CenterCard {
+  id     String @id @default(uuid())
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId String
+  role   Role   @relation(fields: [roleId], references: [id])
+  roleId String
+  position Int  
 }
 
 model Vote {
