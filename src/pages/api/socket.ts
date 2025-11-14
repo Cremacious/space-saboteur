@@ -63,6 +63,10 @@ export default function handler(
       socket.on('game-started', ({ lobbyCode }) => {
         io.to(lobbyCode).emit('redirect-to-game', { code: lobbyCode });
       });
+
+      socket.on('advance-turn', ({ gameCode }) => {
+        io.to(gameCode).emit('turn-advanced', { gameCode });
+      });
     });
 
     res.socket.server.io = io;

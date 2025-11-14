@@ -44,8 +44,8 @@ const GameBoardPage = async ({
           players={game.players}
         />
         <Players players={game.players} />
-        <CenterDeck />
-        <TurnAction />
+        <CenterDeck roles={roles} />
+        <TurnAction gameCode={code} userId={user!.id} roles={roles} />
         <RoleDrawer roles={roles} userId={user!.id} />
       </div>
     </div>

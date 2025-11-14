@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 // import { getAuthenticatedUser } from '@/lib/auth-server';
 import { GameType } from '@/lib/types/game.type';
+import { ROLE_TURN_ORDER } from '@/lib/constants/roleTurnOrder';
 
 export async function getAllRoles() {
   try {
@@ -129,32 +130,6 @@ export async function startGameInDb(gameCode: string) {
   });
 }
 
-// export async function setPlayerReady(gameCode: string, userId: string) {
-//   await prisma.gamePlayer.updateMany({
-//     where: {
-//       game: { code: gameCode },
-//       userId,
-//     },
-//     data: { isReady: true },
-//   });
-
-//   const game = await prisma.game.findUnique({
-//     where: { code: gameCode },
-//     include: { players: true },
-//   });
-//   if (!game) throw new Error('Game not found');
-//   const allReady = game.players.every((p) => p.isReady);
-
-//   if (allReady) {
-//     await prisma.game.update({
-//       where: { code: gameCode },
-//       data: { currentRound: 1, status: 'inProgress' },
-//     });
-//   }
-
-//   return { allReady };
-// }
-
 export async function assignRolesToPlayers(gameCode: string) {
   const game = await prisma.game.findUnique({
     where: { code: gameCode },
@@ -238,4 +213,34 @@ export async function assignRolesToPlayers(gameCode: string) {
   }
 
   return true;
+}
+
+export async function advanceTurn(gameCode: string) {
+  const game = await prisma.game.findUnique({
+    where: { code: gameCode },
+    include: { players: true },
+  });
+  if (!game) throw new Error('Game not found');
+
+  const assignedRoles = game.players.map((p) => p.roleId);
+  const allRoles = await prisma.role.findMany();
+
+  const assignedRoleObjs = allRoles.filter((role) =>
+    assignedRoles.includes(role.id)
+  );
+  const turnOrder = ROLE_TURN_ORDER.map((roleName) =>
+    assignedRoleObjs.find((r) => r.name === roleName)
+  )
+    .filter(Boolean)
+    .map((r) => r!.id);
+
+  const nextTurn =
+    turnOrder.length === 0 ? 0 : (game.currentTurn + 1) % turnOrder.length;
+
+  await prisma.game.update({
+    where: { code: gameCode },
+    data: { currentTurn: nextTurn },
+  });
+
+  return nextTurn;
 }

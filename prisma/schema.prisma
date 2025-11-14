@@ -66,6 +66,7 @@ model Game {
   updatedAt    DateTime    @updatedAt
   expiresAt    DateTime
   rounds       Int
+  currentTurn Int @default(0)
   currentRound Int
   settings     Json        
   players      GamePlayer[]

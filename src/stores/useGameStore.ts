@@ -1,10 +1,16 @@
 import { create } from 'zustand';
-import { assignRolesToPlayers, getGameByCode } from '@/actions/game.action';
+import {
+  assignRolesToPlayers,
+  getAllRoles,
+  getGameByCode,
+  advanceTurn,
+} from '@/actions/game.action';
 import type { PlayerType } from '@/lib/types/player.type';
 import type { RoleType } from '@/lib/types/role.type';
 import type { GameType } from '@/lib/types/game.type';
 import io from 'socket.io-client';
 import { devtools } from 'zustand/middleware';
+import { ROLE_TURN_ORDER } from '@/lib/constants/roleTurnOrder';
 
 type GamePhase = 'turns' | 'discussion' | 'voting' | 'end';
 type CenterCard = { roleId: string; position: number };
@@ -19,6 +25,8 @@ type GameStore = {
   gamePhase: GamePhase;
 
   isReadyDialogOpen: boolean;
+  hasPerformedAction: boolean;
+  setHasPerformedAction: (value: boolean) => void;
   setIsReadyDialogOpen: (open: boolean) => void;
   readyUp: (gameCode: string, userId: string) => Promise<void>;
   syncGame: (gameCode: string) => Promise<void>;
@@ -45,26 +53,39 @@ export const useGameStore = create<GameStore>()(
       currentTurn: 0,
       turnOrder: [],
       gamePhase: 'turns',
-
+      hasPerformedAction: false,
       isReadyDialogOpen: true,
       setIsReadyDialogOpen: (open) => set({ isReadyDialogOpen: open }),
 
       readyUp: async () => {},
       syncCenterDeck: async (gameCode) => {},
 
-      // src/stores/useGameStore.ts
       syncGame: async (gameCode) => {
         const game = await getGameByCode(gameCode);
         if (!game) return;
 
+        const assignedRoles = game.players.map((p) => p.roleId);
+
+        const allRoles = await getAllRoles();
+        const assignedRoleObjs = allRoles.filter((role) =>
+          assignedRoles.includes(role.id)
+        );
+        const turnOrder = ROLE_TURN_ORDER.map((roleName) =>
+          assignedRoleObjs.find((r) => r.name === roleName)
+        )
+          .filter(Boolean)
+          .map((r) => r!.id);
+
         set({
-          players: game.players, 
+          players: game.players,
           centerDeck: game.centerCards.map((card) => ({
             roleId: card.roleId,
             position: card.position,
           })),
           round: game.currentRound,
           totalRounds: game.rounds,
+          turnOrder,
+          currentTurn: game.currentTurn,
           isReadyDialogOpen: !game.players.every((p) => p.isReady),
         });
       },
@@ -73,8 +94,8 @@ export const useGameStore = create<GameStore>()(
           socket = io({ path: '/api/socket' });
         }
         socket.emit('join-lobby', gameCode);
-        socket.off('player-ready');
-        socket.on('player-ready', async (payload: { gameCode: string }) => {
+        socket.off('turn-advanced');
+        socket.on('turn-advanced', async (payload: { gameCode: string }) => {
           await get().syncGame(payload.gameCode);
         });
       },
@@ -87,9 +108,16 @@ export const useGameStore = create<GameStore>()(
           console.error('Failed to assign roles:', error);
         }
       },
-      nextTurn: () => {
-        /* put logic here */
+      setHasPerformedAction: (value) => set({ hasPerformedAction: value }),
+      nextTurn: async (gameCode: string) => {
+        await advanceTurn(gameCode);
+        if (!socket) {
+          socket = io({ path: '/api/socket' });
+        }
+        socket.emit('advance-turn', { gameCode });
+        await get().syncGame(gameCode);
       },
+
       completeTurn: () => {
         /* put logic here */
       },

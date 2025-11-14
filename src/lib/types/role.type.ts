@@ -3,4 +3,5 @@ export type RoleType = {
   image?: string;
   name: string;
   description: string;
+
 };
