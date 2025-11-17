@@ -9,6 +9,7 @@ import { redirect } from 'next/navigation';
 import GameSyncer from './components/GameSyncer';
 import { useGameStore } from '@/stores/useGameStore';
 import { getAllRoles } from '@/actions/game.action';
+import VotingDisplay from './components/VotingDisplay';
 //TODO: Protect this route to only allow access to players in the game
 
 // const centerDeck = ['Card 1', 'Card 2', 'Card 3'];
@@ -45,8 +46,9 @@ const GameBoardPage = async ({
         />
         <Players players={game.players} />
         <CenterDeck roles={roles} />
-        <TurnAction gameCode={code} userId={user!.id} roles={roles} />
-        <RoleDrawer roles={roles} userId={user!.id} />
+        <VotingDisplay userId={user!.id} gameCode={code} />
+        {/* <TurnAction gameCode={code} userId={user!.id} roles={roles} />
+        <RoleDrawer roles={roles} userId={user!.id} /> */}
       </div>
     </div>
   );

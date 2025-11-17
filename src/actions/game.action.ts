@@ -244,3 +244,140 @@ export async function advanceTurn(gameCode: string) {
 
   return nextTurn;
 }
+
+export async function swapPlayerRoles(
+  gameCode: string,
+  playerId1: string,
+  playerId2: string
+) {
+  const game = await prisma.game.findUnique({
+    where: { code: gameCode },
+    include: { players: true },
+  });
+  if (!game) throw new Error('Game not found');
+
+  const player1 = game.players.find((p) => p.id === playerId1);
+  const player2 = game.players.find((p) => p.id === playerId2);
+  if (!player1 || !player2) throw new Error('Players not found');
+
+  const role1 = player1.roleId;
+  const role2 = player2.roleId;
+
+  await prisma.gamePlayer.update({
+    where: { id: player1.id },
+    data: { roleId: role2 },
+  });
+  await prisma.gamePlayer.update({
+    where: { id: player2.id },
+    data: { roleId: role1 },
+  });
+
+  return true;
+}
+
+export async function swapDrunkWithCenter(
+  gameCode: string,
+  playerId: string,
+  centerPosition: number
+) {
+  const game = await prisma.game.findUnique({
+    where: { code: gameCode },
+    include: {
+      players: true,
+      centerCards: true,
+    },
+  });
+  if (!game) throw new Error('Game not found');
+
+  const player = game.players.find((p) => p.id === playerId);
+  const centerCard = game.centerCards.find(
+    (c) => c.position === centerPosition
+  );
+  if (!player || !centerCard)
+    throw new Error('Player or center card not found');
+
+  const playerRoleId = player.roleId;
+  const centerRoleId = centerCard.roleId;
+
+  await prisma.gamePlayer.update({
+    where: { id: player.id },
+    data: { roleId: centerRoleId },
+  });
+  await prisma.centerCard.update({
+    where: { id: centerCard.id },
+    data: { roleId: playerRoleId ?? '' },
+  });
+
+  return true;
+}
+
+export async function startVotingPhase(gameCode: string) {
+  await prisma.game.update({
+    where: { code: gameCode },
+    data: { status: 'voting' },
+  });
+}
+
+export async function castVote(
+  gameCode: string,
+  voterId: string,
+  votedForId: string,
+  round: number
+) {
+  await prisma.vote.upsert({
+    where: {
+      gameId_voterId_round: {
+        gameId: gameCode,
+        voterId: voterId,
+        round: round,
+      },
+    },
+    update: { votedForId },
+    create: { gameId: gameCode, voterId, votedForId, round },
+  });
+}
+
+export async function finishVotingPhase(gameCode: string) {
+  const game = await prisma.game.findUnique({
+    where: { code: gameCode },
+    include: { votes: true, players: true },
+  });
+  if (!game) throw new Error('Game not found');
+
+  const round = game.currentRound;
+  const votes = game.votes.filter((v) => v.round === round);
+
+  // Tally
+  const tally: Record<string, number> = {};
+  for (const vote of votes) {
+    tally[vote.votedForId] = (tally[vote.votedForId] || 0) + 1;
+  }
+  const maxVotes = Math.max(...Object.values(tally));
+  const candidates = Object.entries(tally)
+    .filter(([_, count]) => count === maxVotes)
+    .map(([id]) => id);
+
+  let eliminatedId: string | null = null;
+  if (candidates.length === 1) {
+    eliminatedId = candidates[0];
+  } else if (candidates.length > 1) {
+    return { tie: true, candidates };
+  } else {
+    const activePlayers = game.players.filter((p) => !p.eliminated);
+    eliminatedId =
+      activePlayers[Math.floor(Math.random() * activePlayers.length)]?.id;
+  }
+
+  if (eliminatedId) {
+    await prisma.gamePlayer.update({
+      where: { id: eliminatedId },
+      data: { eliminated: true },
+    });
+    await prisma.game.update({
+      where: { code: gameCode },
+      data: { currentRound: game.currentRound + 1, status: 'turns' },
+    });
+    return { eliminatedId };
+  }
+  return {};
+}

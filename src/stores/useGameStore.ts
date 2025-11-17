@@ -4,6 +4,9 @@ import {
   getAllRoles,
   getGameByCode,
   advanceTurn,
+  startVotingPhase,
+  castVote,
+  finishVotingPhase,
 } from '@/actions/game.action';
 import type { PlayerType } from '@/lib/types/player.type';
 import type { RoleType } from '@/lib/types/role.type';
@@ -23,6 +26,8 @@ type GameStore = {
   currentTurn: number;
   turnOrder: string[];
   gamePhase: GamePhase;
+  votes: { voterId: string; votedForId: string }[];
+  votingTimer: number;
 
   isReadyDialogOpen: boolean;
   hasPerformedAction: boolean;
@@ -36,7 +41,14 @@ type GameStore = {
   nextTurn: () => void;
   completeTurn: () => void;
   startDiscussion: () => void;
-  startVoting: () => void;
+  // startVoting: () => void;
+  startVoting: (gameCode: string) => Promise<void>;
+  castVote: (
+    gameCode: string,
+    voterId: string,
+    votedForId: string
+  ) => Promise<void>;
+  finishVoting: (gameCode: string) => Promise<void>;
   eliminatePlayer: (playerId: string) => void;
   resetGame: () => void;
 };
@@ -109,23 +121,58 @@ export const useGameStore = create<GameStore>()(
         }
       },
       setHasPerformedAction: (value) => set({ hasPerformedAction: value }),
+      // nextTurn: async (gameCode: string) => {
+      //   await advanceTurn(gameCode);
+      //   if (!socket) {
+      //     socket = io({ path: '/api/socket' });
+      //   }
+      //   socket.emit('advance-turn', { gameCode });
+      //   await get().syncGame(gameCode);
+      // },
       nextTurn: async (gameCode: string) => {
-        await advanceTurn(gameCode);
-        if (!socket) {
-          socket = io({ path: '/api/socket' });
+        const { currentTurn, turnOrder, startVoting, syncGame } = get();
+        if (currentTurn + 1 >= turnOrder.length) {
+          await startVoting(gameCode);
+          await syncGame(gameCode);
+          set({ currentTurn: 0 });
+        } else {
+          await advanceTurn(gameCode);
+          if (!socket) {
+            socket = io({ path: '/api/socket' });
+          }
+          socket.emit('advance-turn', { gameCode });
+          await syncGame(gameCode);
         }
-        socket.emit('advance-turn', { gameCode });
-        await get().syncGame(gameCode);
       },
-
       completeTurn: () => {
         /* put logic here */
       },
       startDiscussion: () => {
         /* put logic here */
       },
-      startVoting: () => {
-        /* put logic here */
+      startVoting: async (gameCode) => {
+        await startVotingPhase(gameCode);
+        set({ gamePhase: 'voting', votes: [] });
+        // start timer here
+      },
+      castVote: async (gameCode, voterId, votedForId) => {
+        const { round } = get();
+        await castVote(gameCode, voterId, votedForId, round);
+        set((state) => ({
+          votes: [
+            ...state.votes.filter((v) => v.voterId !== voterId),
+            { voterId, votedForId },
+          ],
+        }));
+      },
+      finishVoting: async (gameCode) => {
+        const result = await finishVotingPhase(gameCode);
+        if (result.tie) {
+          set({ votes: [] });
+        } else {
+          await get().syncGame(gameCode);
+          set({ gamePhase: 'turns', votes: [] });
+        }
       },
       eliminatePlayer: (playerId) => {
         /* put logic here */

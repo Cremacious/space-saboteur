@@ -24,6 +24,7 @@ const TurnAction = ({
     hasPerformedAction,
     setHasPerformedAction,
     nextTurn,
+    gamePhase,
   } = useGameStore();
   const [currentRole, setCurrentRole] = useState<RoleWithAbility | null>(null);
 
@@ -36,6 +37,10 @@ const TurnAction = ({
   const player = players.find((p) => p.userId === userId || p.id === userId);
   const isMyTurn = player && player.roleId === currentRole?.id;
 
+  if (gamePhase === 'voting') {
+    return null;
+  }
+
   function renderRoleAction() {
     if (!isMyTurn) return null;
     return (
@@ -43,6 +48,8 @@ const TurnAction = ({
         roleName={currentRole?.name ?? ''}
         roles={roles}
         setHasPerformedAction={setHasPerformedAction}
+        userId={userId}
+        gameCode={gameCode}
       />
     );
   }

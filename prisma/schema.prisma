@@ -148,6 +148,7 @@ model Vote {
   votedForId String
   round     Int
   createdAt DateTime @default(now())
+  @@unique([gameId, voterId, round]) 
 }
 
 model PlayerStats {
