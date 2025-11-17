@@ -9,7 +9,7 @@ const VotingDisplay = ({
   userId: string;
   gameCode: string;
 }) => {
-  const { players, votes, castVote, round, gamePhase } = useGameStore();
+  const { players, votes=[], castVote, round, gamePhase } = useGameStore();
   const [selected, setSelected] = useState<string | null>(null);
 
   const activePlayers = players.filter((p) => !p.eliminated);

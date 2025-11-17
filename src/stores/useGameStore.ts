@@ -38,7 +38,8 @@ type GameStore = {
   initReadySocket: (gameCode: string) => void;
   syncCenterDeck: (gameCode: string) => Promise<void>;
   assignRoles: (gameCode: string) => Promise<void>;
-  nextTurn: () => void;
+  // nextTurn: () => void;
+  nextTurn: (gameCode: string) => Promise<void>;
   completeTurn: () => void;
   startDiscussion: () => void;
   // startVoting: () => void;
@@ -71,7 +72,6 @@ export const useGameStore = create<GameStore>()(
 
       readyUp: async () => {},
       syncCenterDeck: async (gameCode) => {},
-
       syncGame: async (gameCode) => {
         const game = await getGameByCode(gameCode);
         if (!game) return;
@@ -82,6 +82,7 @@ export const useGameStore = create<GameStore>()(
         const assignedRoleObjs = allRoles.filter((role) =>
           assignedRoles.includes(role.id)
         );
+
         const turnOrder = ROLE_TURN_ORDER.map((roleName) =>
           assignedRoleObjs.find((r) => r.name === roleName)
         )
@@ -121,14 +122,6 @@ export const useGameStore = create<GameStore>()(
         }
       },
       setHasPerformedAction: (value) => set({ hasPerformedAction: value }),
-      // nextTurn: async (gameCode: string) => {
-      //   await advanceTurn(gameCode);
-      //   if (!socket) {
-      //     socket = io({ path: '/api/socket' });
-      //   }
-      //   socket.emit('advance-turn', { gameCode });
-      //   await get().syncGame(gameCode);
-      // },
       nextTurn: async (gameCode: string) => {
         const { currentTurn, turnOrder, startVoting, syncGame } = get();
         if (currentTurn + 1 >= turnOrder.length) {

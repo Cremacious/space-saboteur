@@ -47,8 +47,8 @@ const GameBoardPage = async ({
         <Players players={game.players} />
         <CenterDeck roles={roles} />
         <VotingDisplay userId={user!.id} gameCode={code} />
-        {/* <TurnAction gameCode={code} userId={user!.id} roles={roles} />
-        <RoleDrawer roles={roles} userId={user!.id} /> */}
+        <TurnAction gameCode={code} userId={user!.id} roles={roles} />
+        <RoleDrawer roles={roles} userId={user!.id} />
       </div>
     </div>
   );

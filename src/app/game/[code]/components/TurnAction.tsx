@@ -4,7 +4,7 @@ import { useGameStore } from '@/stores/useGameStore';
 import { useEffect, useState } from 'react';
 import { RoleType } from '@/lib/types/role.type';
 import { RoleActionDispatcher } from './roleActions/RoleActionDispatcher';
-import { advanceTurn } from '@/actions/game.action';
+// import { advanceTurn } from '@/actions/game.action';
 
 type RoleWithAbility = RoleType & { ability: string };
 
@@ -70,7 +70,7 @@ const TurnAction = ({
             className="mt-4 bg-cyan-400 text-black px-6 py-2 rounded-full space-font font-bold"
             disabled={!hasPerformedAction}
             onClick={() => {
-              nextTurn();
+              nextTurn(gameCode);
               setHasPerformedAction(false);
             }}
           >

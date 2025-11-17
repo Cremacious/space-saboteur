@@ -326,7 +326,7 @@ export async function castVote(
 ) {
   await prisma.vote.upsert({
     where: {
-      gameId_voterId_round: {
+      vote_unique_per_round: {
         gameId: gameCode,
         voterId: voterId,
         round: round,
